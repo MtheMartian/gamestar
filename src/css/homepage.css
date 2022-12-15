@@ -1,0 +1,54 @@
+#home-page-container{
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+  z-index: 2;
+}
+
+#home-page{
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 1000px;
+}
+
+/* ------- Carousel ------- */
+#home-page-carousel{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  overflow-x: scroll;
+  width: 100%;
+}
+
+#test1{
+  background: lightblue;
+  width: 100%;
+  min-height: 300px;
+}
+
+#test2{
+  background: lightgreen;
+  width: 100%;
+  min-height: 300px;
+}
+
+#left{
+  position: absolute;
+  left: 40%;
+}
+
+#right{
+  position: absolute;
+  right: 40%;
+}
+
+
+
