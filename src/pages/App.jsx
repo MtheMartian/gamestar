@@ -16,7 +16,6 @@ function clearFiltersArr(){
   document.querySelectorAll('input').forEach(element =>{
     element.checked = false;
   })
-  console.log(filtersArr);
 }
 
 function SearchBar({appendTitles}){

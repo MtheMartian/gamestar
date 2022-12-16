@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './pages/App';
 // import Root from './routes/root';
 import NoPage from './pages/NoPage';
