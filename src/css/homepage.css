@@ -1,13 +1,3 @@
-#home-page-container{
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow-y: auto;
-  z-index: 2;
-}
-
 #home-page{
   margin-top: 80px;
   display: flex;
@@ -15,7 +5,6 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding-bottom: 1000px;
 }
 
 /* ------- Carousel ------- */
@@ -23,31 +12,40 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  overflow: hidden;
+  width: 100%;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.carousel-title-wrapper{
+  width: 100%;
+  height: 300px;
   position: relative;
-  overflow-x: scroll;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-#test1{
-  background: lightblue;
-  width: 100%;
-  min-height: 300px;
+.carousel-title-image{
+  max-width: 100%;
+  border: 1px solid black;
+  border-radius: 20px;
+  object-fit: cover;
+  object-position: top;
 }
 
-#test2{
-  background: lightgreen;
-  width: 100%;
-  min-height: 300px;
-}
-
-#left{
+.left{
   position: absolute;
-  left: 40%;
+  top: 40%;
+  left: 20%;
 }
 
-#right{
+.right{
   position: absolute;
-  right: 40%;
+  top: 40%;
+  right: 20%;
 }
 
 

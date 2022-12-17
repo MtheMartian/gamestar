@@ -15,7 +15,7 @@ function clearFiltersArr(){
   });
   document.querySelectorAll('input').forEach(element =>{
     element.checked = false;
-  })
+  });
 }
 
 function SearchBar({appendTitles}){
