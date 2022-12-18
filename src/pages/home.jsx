@@ -32,16 +32,19 @@ function Carousel(){
     <div id="home-page-carousel" ref={carousel}>
       {titlesCarousel.map(title =>
         <div className="carousel-title-wrapper" key={title._id}>
+          <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
           <img alt="title" src={title.imgURL} className="carousel-title-image" />
-          <button className="left" onClick={() =>{
-            carousel.current.scrollLeft -= carousel.current.clientWidth}}>
-              Left
-            </button>
-            <button className="right" onClick={() =>{
-              carousel.current.scrollLeft += carousel.current.clientWidth}}>
-              Right
-            </button>
+          <iframe src={`${title.videoURL}?controls=0&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
+            title="Title Trailer"/>
         </div>)}
+        <button className="left" onClick={() =>{
+            carousel.current.scrollLeft -= carousel.current.clientWidth}}>
+          Left
+        </button>
+        <button className="right" onClick={() =>{
+              carousel.current.scrollLeft += carousel.current.clientWidth}}>
+          Right
+        </button>
     </div>
   );
 }
