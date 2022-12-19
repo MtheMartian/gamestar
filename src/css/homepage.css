@@ -8,13 +8,17 @@
   height: calc(100% - 80px);
 }
 
+button{
+  cursor: pointer;
+}
+
 /* ------- Carousel ------- */
 #home-page-carousel{
   display: flex;
   justify-content: flex-start;
   align-items: center;
   overflow: hidden;
-  width: 100%;
+  width: 100vw;
   height: 600px;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
@@ -29,6 +33,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  scroll-snap-stop: always;
+  scroll-snap-align: start;
 }
 
 .carousel-title-wrapper:hover .carousel-title-trailer{
@@ -37,12 +43,19 @@
 }
 
 .carousel-title-image{
-  width: 85%;
-  height: 80%;
-  border-radius: 20px;
+  width: 100%;
+  height: 50%;
   object-fit: contain;
+}
+
+.carousel-title-image-wrapper{
   z-index: 1;
+  position: relative;
   transition: 150ms transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .carousel-title-imagebg{
@@ -54,24 +67,42 @@
   filter: blur(0.5rem);
 }
 
-.carousel-title-image:hover{
+.carousel-title-image-wrapper:hover{
   transform: scale(1.05);
 }
 
 .left{
   position: fixed;
-  top: 380px;
-  left: 5%;
-  color: white;
+  left: 0;
+  font-size: calc(0.8vw + 1rem);
+  font-weight: 700;
+  color: black;
   z-index: 2;
+  height: 600px;
+  width: 7%;
+  text-align: center;
+  transition: 150ms background;
 }
 
 .right{
   position: fixed;
-  top: 380px;
-  right: 5%;
-  color: white;
+  right: 0;
+  font-size: calc(0.8vw + 1rem);
+  font-weight: 700;
+  color: black;
   z-index: 2;
+  height: 600px;
+  width: 7%;
+  text-align: center;
+  transition: 150ms background;
+}
+
+.left:hover, .right:hover{
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.left:active, .right:active{
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .carousel-title-trailer{
@@ -85,7 +116,22 @@
   display: none;
 }
 
-@media screen and (min-width: 1000px){
+.carousel-title-platforms{
+  z-index: 1;
+  position: absolute;
+  top: 71%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+}
+
+.carousel-title-platforms img{
+  width: 10%;
+}
+
+@media screen and (min-width: 1200px){
   .carousel-title-trailer{
     display: unset;
   }
