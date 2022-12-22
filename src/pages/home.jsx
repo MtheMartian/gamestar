@@ -34,18 +34,9 @@ function Carousel(){
   const trailer = useRef(null);
 
   //
-  function checkVideoVisible(){
-    setTimeout(()=>{
-      if(trailer.current.style.height !== "0"){
-        clearInterval(tileTimer.current);
-        console.log(trailer.current.styleSheets);
-      }
-      else if(trailer.current.style.height === "0"){
-        console.log("Not Hola!");
-        clearInterval(tileTimer.current);
-        setTileTimer();
-      }
-    }, 500);
+  function videoSelected(){
+    console.log("Clicked on video!");
+    clearInterval(tileTimer.current);
   }
 
   // Set carousel timer after reset
@@ -119,7 +110,7 @@ function Carousel(){
 
 
   return(
-    <div id="home-page-carousel" ref={carousel} onMouseOver={checkVideoVisible}>
+    <div id="home-page-carousel" ref={carousel} onClick={(e)=>{console.log(e)}}>
       {titlesCarousel.map(title =>
         <div className="carousel-title-wrapper" key={title._id}>
           <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
@@ -133,12 +124,12 @@ function Carousel(){
             </div>
           </div>
           <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
-            title="Title Trailer" ref={trailer}/>
+            title="Title Trailer" ref={trailer} onMouseEnter={videoSelected} onTouchMove={videoSelected}/>
         </div>)}
-        <button className="left" onClick={previousTile} onMouseOver={checkVideoVisible}>
+        <button className="left" onClick={previousTile}>
           &lt;
         </button>
-        <button className="right" onClick={nextTile} onMouseOver={checkVideoVisible}>
+        <button className="right" onClick={nextTile}>
           &gt;
         </button>
     </div>
