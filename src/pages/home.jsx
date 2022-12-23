@@ -21,10 +21,6 @@ function Carousel(){
   const carousel = useRef(null);
   const [titlesCarousel, setTitlesCarousel] = useState([]);
 
-  // Variables (Carousel Tile navigation)
-  const [prevBtn, setPrevBtn] = useState(null);
-  const [nextBtn, setNextBtn] = useState(null);
-
   // Variables (Carousel timer/Counter)
   const tilesNum = useMemo(()=> titlesCarousel.length, [titlesCarousel]);
   let tileCounter = useRef(0);
@@ -33,10 +29,30 @@ function Carousel(){
   //Variables (Trailer Video)
   const trailer = useRef(null);
 
-  //
-  function videoSelected(){
+  // Display video if hovered over (PC) or tapped (Mobile).
+  function videoSelected(event){
     console.log("Clicked on video!");
     clearInterval(tileTimer.current);
+    event.currentTarget.style.height = "33rem";
+  }
+
+  // Carousel Navigation function
+  function carouselNavFunction(){
+    // Right
+    if(tileCounter.current === tilesNum - 1){
+      document.getElementById("right").classList.add("hidden");
+    }
+    else{
+      document.getElementById("right").classList.remove("hidden");
+    }
+
+    // Left
+    if(tileCounter.current === 0 || tileCounter.current === 3){
+      document.getElementById("left").classList.add("hidden");
+    }
+    else{
+      document.getElementById("left").classList.remove("hidden");
+    }
   }
 
   // Set carousel timer after reset
@@ -44,7 +60,7 @@ function Carousel(){
     tileTimer.current = setInterval(()=>{
       carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
       tileCounter.current++;
-      console.log(tileCounter);
+      carouselNavFunction();
       if(tileCounter.current === tilesNum){
         carousel.current.scrollLeft = 0;
         tileCounter.current = 0;
@@ -57,12 +73,14 @@ function Carousel(){
     clearInterval(tileTimer.current);
     carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
     tileCounter.current++;
-    console.log(tileCounter.current);
+    carouselNavFunction();
     setTileTimer();
+    Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+      element.style.cssText = null;
+    });
     if(tileCounter.current > tilesNum){
       tileCounter.current = 0;
       carousel.current.scrollLeft = 0;
-      console.log(tileCounter.current);
     }
   }
 
@@ -71,12 +89,14 @@ function Carousel(){
     clearInterval(tileTimer.current);
     carousel.current.scrollLeft -= carousel.current.clientWidth * 0.65;
     tileCounter.current--;
-    console.log(tileCounter.current);
+    carouselNavFunction();
     setTileTimer();
+    Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+      element.style.cssText = null;
+    });
     if(tileCounter.current < 0){
       tileCounter.current = 0;
       carousel.current.scrollLeft = 0;
-      console.log(tileCounter.current);
     }
   }
 
@@ -85,7 +105,6 @@ function Carousel(){
     fetch("/home/carousels")
     .then(response => response.json())
     .then(data =>{
-      console.log(data);
       setTitlesCarousel(data);
     })
     .catch(err =>{
@@ -96,6 +115,7 @@ function Carousel(){
       carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
       tileCounter.current++;
       console.log(tileCounter);
+      carouselNavFunction();
       if(tileCounter.current === tilesNum){
         carousel.current.scrollLeft = 0;
         tileCounter.current = 0;
@@ -104,17 +124,15 @@ function Carousel(){
 
     return ()=>{
       clearInterval(tileTimer.current);
-      console.log("lol");
     }
   }, [tilesNum]);
 
-
   return(
-    <div id="home-page-carousel" ref={carousel} onClick={(e)=>{console.log(e)}}>
-      {titlesCarousel.map(title =>
-        <div className="carousel-title-wrapper" key={title._id}>
+    <div id="home-page-carousel" ref={carousel}>
+      {titlesCarousel.map((title, index) =>
+        <div className="carousel-title-wrapper" key={title._id} onTouchEnd={videoSelected}>
           <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
-          <div className="carousel-title-image-wrapper">
+          <div className="carousel-title-image-wrapper" title={title.title}>
             <img alt="title" src={title.imgURL} className="carousel-title-image" />
             <div className="carousel-title-platforms">
               {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? <img src={xbox} alt="Xbox"/> : null}
@@ -123,13 +141,13 @@ function Carousel(){
               {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
             </div>
           </div>
-          <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
-            title="Title Trailer" ref={trailer} onMouseEnter={videoSelected} onTouchMove={videoSelected}/>
+          <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
+            title="Title Trailer" ref={trailer} onPointerOver={videoSelected} />
         </div>)}
-        <button className="left" onClick={previousTile}>
+        <button id="left" className="hidden" onClick={previousTile}>
           &lt;
         </button>
-        <button className="right" onClick={nextTile}>
+        <button id="right" onClick={nextTile}>
           &gt;
         </button>
     </div>

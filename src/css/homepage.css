@@ -71,7 +71,7 @@ button{
   transform: scale(1.05);
 }
 
-.left{
+#left{
   position: fixed;
   left: 0;
   font-size: calc(0.8vw + 1rem);
@@ -84,7 +84,7 @@ button{
   transition: 150ms background;
 }
 
-.right{
+#right{
   position: fixed;
   right: 0;
   font-size: calc(0.8vw + 1rem);
@@ -97,11 +97,11 @@ button{
   transition: 150ms background;
 }
 
-.left:hover, .right:hover{
+#left:hover, #right:hover{
   background: rgba(255, 255, 255, 0.25);
 }
 
-.left:active, .right:active{
+#left:active, #right:active{
   background: rgba(255, 255, 255, 0.5);
 }
 
