@@ -21,22 +21,54 @@ function Carousel(){
   const carousel = useRef(null);
   const [titlesCarousel, setTitlesCarousel] = useState([]);
 
-  // Variables (Carousel Tile navigation)
-  const [prevBtn, setPrevBtn] = useState(null);
-  const [nextBtn, setNextBtn] = useState(null);
-
   // Variables (Carousel timer/Counter)
   const tilesNum = useMemo(()=> titlesCarousel.length, [titlesCarousel]);
   let tileCounter = useRef(0);
   const tileTimer = useRef(null);
 
-  //Variables (Trailer Video)
+  // Variables (Trailer Video)
   const trailer = useRef(null);
 
-  //
-  function videoSelected(){
+  // Display video if hovered over (PC) or tapped (Mobile).
+  function videoSelected(event){
     console.log("Clicked on video!");
     clearInterval(tileTimer.current);
+    event.currentTarget.style.height = "33rem";
+  }
+
+  // Variables (Carousel Navigation)
+  const [tileNav, setTileNav] = useState([]);
+
+  // Carousel Navigation
+  function carouselNavFunction(){
+    // Right
+    if(tileCounter.current === tilesNum - 1){
+      document.getElementById("right").classList.add("hidden");
+    }
+    else{
+      document.getElementById("right").classList.remove("hidden");
+    }
+
+    // Left
+    if(tileCounter.current === 0 || tileCounter.current === 3){
+      document.getElementById("left").classList.add("hidden");
+    }
+    else{
+      document.getElementById("left").classList.remove("hidden");
+    }
+  }
+
+  // Fill background of tile navigation buttons based on tile counter
+  function tileNavigationFill(){
+   const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button"));
+   tileNavs.forEach(element=>{
+    if(element.id.includes(tileCounter.current.toString())){
+      element.style.background = "rgba(240, 248, 255, 0.9)";
+    }
+    else{
+      element.style.background = null;
+    }
+   });
   }
 
   // Set carousel timer after reset
@@ -44,11 +76,12 @@ function Carousel(){
     tileTimer.current = setInterval(()=>{
       carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
       tileCounter.current++;
-      console.log(tileCounter);
+      carouselNavFunction();
       if(tileCounter.current === tilesNum){
         carousel.current.scrollLeft = 0;
         tileCounter.current = 0;
       }
+      tileNavigationFill();
     }, 9000);
   }
 
@@ -57,12 +90,15 @@ function Carousel(){
     clearInterval(tileTimer.current);
     carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
     tileCounter.current++;
-    console.log(tileCounter.current);
+    carouselNavFunction();
     setTileTimer();
+    tileNavigationFill();
+    Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+      element.style.cssText = null;
+    });
     if(tileCounter.current > tilesNum){
       tileCounter.current = 0;
       carousel.current.scrollLeft = 0;
-      console.log(tileCounter.current);
     }
   }
 
@@ -71,21 +107,47 @@ function Carousel(){
     clearInterval(tileTimer.current);
     carousel.current.scrollLeft -= carousel.current.clientWidth * 0.65;
     tileCounter.current--;
-    console.log(tileCounter.current);
+    carouselNavFunction();
     setTileTimer();
+    tileNavigationFill();
+    Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+      element.style.cssText = null;
+    });
     if(tileCounter.current < 0){
       tileCounter.current = 0;
       carousel.current.scrollLeft = 0;
-      console.log(tileCounter.current);
     }
   }
+
+  // Append tile nav buttons to page
+  useEffect(()=>{
+    function tileNavigation(){
+      let jsxElements = [];
+      for(let i = 0; i < tilesNum; i++){
+        jsxElements.push(
+          <button key={i} id={`tile${i}`}className="tile-nav-button"
+            onClick={()=>{
+              carousel.current.scrollLeft = carousel.current.clientWidth * i;
+              tileCounter.current = i;
+              tileNavigationFill();
+              carouselNavFunction();
+              clearInterval(tileTimer.current);
+              setTileTimer();
+            }}>
+          </button>
+        )
+      }
+      return jsxElements;
+    }
+    setTileNav(tileNavigation);
+    setTimeout(tileNavigationFill, 10);
+  }, [tilesNum])
 
   // Get titles for carousel (1 to 3 months > current date) and set carousel timer
   useEffect(()=>{
     fetch("/home/carousels")
     .then(response => response.json())
     .then(data =>{
-      console.log(data);
       setTitlesCarousel(data);
     })
     .catch(err =>{
@@ -96,25 +158,25 @@ function Carousel(){
       carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
       tileCounter.current++;
       console.log(tileCounter);
+      carouselNavFunction();
       if(tileCounter.current === tilesNum){
         carousel.current.scrollLeft = 0;
         tileCounter.current = 0;
       }
+      tileNavigationFill();
     }, 9000);
 
     return ()=>{
       clearInterval(tileTimer.current);
-      console.log("lol");
     }
   }, [tilesNum]);
 
-
   return(
-    <div id="home-page-carousel" ref={carousel} onClick={(e)=>{console.log(e)}}>
-      {titlesCarousel.map(title =>
-        <div className="carousel-title-wrapper" key={title._id}>
+    <div id="home-page-carousel" ref={carousel}>
+      {titlesCarousel.map((title, index) =>
+        <div className="carousel-title-wrapper" key={title._id} onTouchEnd={videoSelected}>
           <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
-          <div className="carousel-title-image-wrapper">
+          <div className="carousel-title-image-wrapper" title={title.title}>
             <img alt="title" src={title.imgURL} className="carousel-title-image" />
             <div className="carousel-title-platforms">
               {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? <img src={xbox} alt="Xbox"/> : null}
@@ -123,15 +185,18 @@ function Carousel(){
               {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
             </div>
           </div>
-          <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
-            title="Title Trailer" ref={trailer} onMouseEnter={videoSelected} onTouchMove={videoSelected}/>
+          <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
+            title="Title Trailer" ref={trailer} onPointerOver={videoSelected} />
         </div>)}
-        <button className="left" onClick={previousTile}>
+        <button id="left" className="hidden" onClick={previousTile}>
           &lt;
         </button>
-        <button className="right" onClick={nextTile}>
+        <button id="right" onClick={nextTile}>
           &gt;
         </button>
+        <div id="tiles-navigation">
+          {tileNav}
+        </div>
     </div>
   );
 }
