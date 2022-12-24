@@ -26,7 +26,7 @@ function Carousel(){
   let tileCounter = useRef(0);
   const tileTimer = useRef(null);
 
-  //Variables (Trailer Video)
+  // Variables (Trailer Video)
   const trailer = useRef(null);
 
   // Display video if hovered over (PC) or tapped (Mobile).
@@ -36,7 +36,10 @@ function Carousel(){
     event.currentTarget.style.height = "33rem";
   }
 
-  // Carousel Navigation function
+  // Variables (Carousel Navigation)
+  const [tileNav, setTileNav] = useState([]);
+
+  // Carousel Navigation
   function carouselNavFunction(){
     // Right
     if(tileCounter.current === tilesNum - 1){
@@ -55,6 +58,19 @@ function Carousel(){
     }
   }
 
+  // Fill background of tile navigation buttons based on tile counter
+  function tileNavigationFill(){
+   const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button"));
+   tileNavs.forEach(element=>{
+    if(element.id.includes(tileCounter.current.toString())){
+      element.style.background = "rgba(240, 248, 255, 0.9)";
+    }
+    else{
+      element.style.background = null;
+    }
+   });
+  }
+
   // Set carousel timer after reset
   function setTileTimer(){
     tileTimer.current = setInterval(()=>{
@@ -65,6 +81,7 @@ function Carousel(){
         carousel.current.scrollLeft = 0;
         tileCounter.current = 0;
       }
+      tileNavigationFill();
     }, 9000);
   }
 
@@ -75,6 +92,7 @@ function Carousel(){
     tileCounter.current++;
     carouselNavFunction();
     setTileTimer();
+    tileNavigationFill();
     Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
       element.style.cssText = null;
     });
@@ -91,6 +109,7 @@ function Carousel(){
     tileCounter.current--;
     carouselNavFunction();
     setTileTimer();
+    tileNavigationFill();
     Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
       element.style.cssText = null;
     });
@@ -99,6 +118,30 @@ function Carousel(){
       carousel.current.scrollLeft = 0;
     }
   }
+
+  // Append tile nav buttons to page
+  useEffect(()=>{
+    function tileNavigation(){
+      let jsxElements = [];
+      for(let i = 0; i < tilesNum; i++){
+        jsxElements.push(
+          <button key={i} id={`tile${i}`}className="tile-nav-button"
+            onClick={()=>{
+              carousel.current.scrollLeft = carousel.current.clientWidth * i;
+              tileCounter.current = i;
+              tileNavigationFill();
+              carouselNavFunction();
+              clearInterval(tileTimer.current);
+              setTileTimer();
+            }}>
+          </button>
+        )
+      }
+      return jsxElements;
+    }
+    setTileNav(tileNavigation);
+    setTimeout(tileNavigationFill, 10);
+  }, [tilesNum])
 
   // Get titles for carousel (1 to 3 months > current date) and set carousel timer
   useEffect(()=>{
@@ -120,6 +163,7 @@ function Carousel(){
         carousel.current.scrollLeft = 0;
         tileCounter.current = 0;
       }
+      tileNavigationFill();
     }, 9000);
 
     return ()=>{
@@ -150,6 +194,9 @@ function Carousel(){
         <button id="right" onClick={nextTile}>
           &gt;
         </button>
+        <div id="tiles-navigation">
+          {tileNav}
+        </div>
     </div>
   );
 }

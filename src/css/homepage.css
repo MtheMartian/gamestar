@@ -23,6 +23,7 @@ button{
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   background: rgb(0, 13, 29);
+  position: relative;
 }
 
 .carousel-title-wrapper{
@@ -71,12 +72,28 @@ button{
   transform: scale(1.05);
 }
 
+.carousel-title-platforms{
+  z-index: 1;
+  position: absolute;
+  top: 71%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+}
+
+.carousel-title-platforms img{
+  width: 10%;
+}
+
+/* Carousel Navigation */
 #left{
   position: fixed;
   left: 0;
   font-size: calc(0.8vw + 1rem);
   font-weight: 700;
-  color: black;
+  color: aliceblue;
   z-index: 2;
   height: 600px;
   width: 7%;
@@ -89,7 +106,7 @@ button{
   right: 0;
   font-size: calc(0.8vw + 1rem);
   font-weight: 700;
-  color: black;
+  color: aliceblue;
   z-index: 2;
   height: 600px;
   width: 7%;
@@ -105,6 +122,26 @@ button{
   background: rgba(255, 255, 255, 0.5);
 }
 
+#tiles-navigation{
+  position: fixed;
+  top: 655px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  width: 100%;
+  z-index: 2;
+  padding-right: 9%;
+}
+
+.tile-nav-button{
+  border: 1px solid aliceblue;
+  width: 3%;
+  height: 20px;
+  border-radius: 10px;
+}
+
+/* Carousel Trailer */
 .carousel-title-trailer{
   width: 36rem;
   height: 0;
@@ -114,21 +151,6 @@ button{
   z-index: 1;
   transition: 1s height;
   display: none;
-}
-
-.carousel-title-platforms{
-  z-index: 1;
-  position: absolute;
-  top: 71%;
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 3px;
-}
-
-.carousel-title-platforms img{
-  width: 10%;
 }
 
 @media screen and (min-width: 1200px){
