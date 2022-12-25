@@ -16,75 +16,8 @@ function SearchRedirect(){
   );
 }
 
-function Carousel(){
-  // Variables (Carousel)
-  const carousel = useRef(null);
-  const [titlesCarousel, setTitlesCarousel] = useState([]);
-
-  // Variables (Carousel timer/Counter)
-  const tilesNum = useMemo(()=> titlesCarousel.length, [titlesCarousel]);
-  let tileCounter = useRef(0);
-  const tileTimer = useRef(null);
-
-  // Variables (Trailer Video)
-  const trailer = useRef(null);
-
-  // Display video if hovered over (PC) or tapped (Mobile).
-  function videoSelected(event){
-    console.log("Clicked on video!");
-    clearInterval(tileTimer.current);
-    event.currentTarget.style.height = "33rem";
-  }
-
-  // Variables (Carousel Navigation)
-  const [tileNav, setTileNav] = useState([]);
-
-  // Carousel Navigation
-  function carouselNavFunction(){
-    // Right
-    if(tileCounter.current === tilesNum - 1){
-      document.getElementById("right").classList.add("hidden");
-    }
-    else{
-      document.getElementById("right").classList.remove("hidden");
-    }
-
-    // Left
-    if(tileCounter.current === 0 || tileCounter.current === 3){
-      document.getElementById("left").classList.add("hidden");
-    }
-    else{
-      document.getElementById("left").classList.remove("hidden");
-    }
-  }
-
-  // Fill background of tile navigation buttons based on tile counter
-  function tileNavigationFill(){
-   const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button"));
-   tileNavs.forEach(element=>{
-    if(element.id.includes(tileCounter.current.toString())){
-      element.style.background = "rgba(240, 248, 255, 0.9)";
-    }
-    else{
-      element.style.background = null;
-    }
-   });
-  }
-
-  // Set carousel timer after reset
-  function setTileTimer(){
-    tileTimer.current = setInterval(()=>{
-      carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
-      tileCounter.current++;
-      carouselNavFunction();
-      if(tileCounter.current === tilesNum){
-        carousel.current.scrollLeft = 0;
-        tileCounter.current = 0;
-      }
-      tileNavigationFill();
-    }, 9000);
-  }
-
+function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
+    content, className, id, setTileTimer, tileNavigationFill, carouselNavFunction}){
   // Go to next carousel tile, reset timer
   function nextTile(){
     clearInterval(tileTimer.current);
@@ -117,6 +50,82 @@ function Carousel(){
       tileCounter.current = 0;
       carousel.current.scrollLeft = 0;
     }
+  }
+
+  return(
+    <button id={id} className={className} onClick={id === "right" ? nextTile : previousTile}>
+          {content}
+    </button>
+  )
+}
+
+function Carousel(){ 
+  // Variables (Carousel)
+  const carousel = useRef(null);
+  const [titlesCarousel, setTitlesCarousel] = useState([]);
+
+  // Variables (Carousel timer/Counter)
+  const tilesNum = useMemo(()=> titlesCarousel.length, [titlesCarousel]);
+  let tileCounter = useRef(0);
+  const tileTimer = useRef(null);
+
+  // Variables (Trailer Video)
+  const trailer = useRef(null);
+
+  // Display video if hovered over (PC) or tapped (Mobile).
+  function videoSelected(event){
+    console.log("Clicked on video!");
+    clearInterval(tileTimer.current);
+    event.currentTarget.style.height = "33rem";
+  }
+
+  // Variables (Carousel Navigation)
+  const [tileNav, setTileNav] = useState([]);
+
+  // Fill background of tile navigation buttons based on tile counter
+  function tileNavigationFill(){
+   const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button"));
+   tileNavs.forEach(element=>{
+    if(element.id === `tile${tileCounter.current.toString()}`){
+      element.style.background = "rgba(240, 248, 255, 0.9)";
+    }
+    else{
+      element.style.background = null;
+    }
+   });
+  }
+
+  // Hide Carousel Navigation buttons
+  function carouselNavFunction(){
+    // Right
+    if(tileCounter.current === tilesNum - 1){
+      document.getElementById("right").classList.add("hidden");
+    }
+    else{
+      document.getElementById("right").classList.remove("hidden");
+    }
+
+    // Left
+    if(tileCounter.current === 0 || tileCounter.current === tilesNum){
+      document.getElementById("left").classList.add("hidden");
+    }
+    else{
+      document.getElementById("left").classList.remove("hidden");
+    }
+  }
+
+  // Set carousel timer after reset
+  function setTileTimer(){
+    tileTimer.current = setInterval(()=>{
+      carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
+      tileCounter.current++;
+      carouselNavFunction();
+      if(tileCounter.current === tilesNum){
+        carousel.current.scrollLeft = 0;
+        tileCounter.current = 0;
+      }
+      tileNavigationFill();
+    }, 9000);
   }
 
   // Append tile nav buttons to page
@@ -188,12 +197,14 @@ function Carousel(){
           <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
             title="Title Trailer" ref={trailer} onPointerOver={videoSelected} />
         </div>)}
-        <button id="left" className="hidden" onClick={previousTile}>
-          &lt;
-        </button>
-        <button id="right" onClick={nextTile}>
-          &gt;
-        </button>
+        <CarouselNavigation content={"<"} className={"hidden"} id={"left"}
+          carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
+          tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
+          carousel={carousel} setTileTimer={setTileTimer}/>
+        <CarouselNavigation content={">"} className={""} id={"right"} 
+          carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
+          tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
+          carousel={carousel} setTileTimer={setTileTimer}/>
         <div id="tiles-navigation">
           {tileNav}
         </div>
