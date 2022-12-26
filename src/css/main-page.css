@@ -162,6 +162,11 @@ input[type="checkbox"]:checked::before {
  transition: 120ms transform;
 }
 
+.searched-title-title-container{
+  width: 70%;
+  text-align: center;
+}
+
 .searched-title-image-container{
   width: 200px;
 }

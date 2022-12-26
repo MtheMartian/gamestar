@@ -153,9 +153,35 @@ button{
   display: none;
 }
 
+/* Carousel Summary */
+.carousel-title-summary-wrapper{
+  position: absolute;
+  right: 9%;
+  height: 100%;
+  overflow-y: auto;
+  text-align: center;
+  width: 25%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: aliceblue;
+  line-height: 2rem;
+  font-weight: 500;
+}
+
+.carousel-title-summary{
+  background: rgba(59, 59, 59, 0.5);
+  border-radius: 10px;
+  padding: 2rem;
+}
+
 @media screen and (min-width: 1200px){
   .carousel-title-trailer{
     display: unset;
+  }
+
+  .carousel-title-summary-wrapper{
+    display: flex;
   }
 }
 
