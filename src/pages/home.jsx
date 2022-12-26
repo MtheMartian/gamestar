@@ -196,6 +196,11 @@ function Carousel(){
           </div>
           <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
             title="Title Trailer" ref={trailer} onPointerOver={videoSelected} />
+          <div className="carousel-title-summary-wrapper">
+            <p className="carousel-title-summary">
+              {title.summary}
+            </p>
+          </div>
         </div>)}
         <CarouselNavigation content={"<"} className={"hidden"} id={"left"}
           carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
