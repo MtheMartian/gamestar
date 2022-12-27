@@ -1,7 +1,7 @@
 import React from 'react';
 import {useState, useRef, useEffect} from 'react';
 import { mainPageOptions, filtersArr } from '../js/main';
-import '../css/main-page.css';
+import '../css/search-page.css';
 import '../css/general.css';
 import Header from '../general-components/header';
 
@@ -521,26 +521,28 @@ function App(){
   }, []);
  
   return (
-    <main id="search-page" onClick={openFilterOverlay}>
-      <Header item={<SearchBar appendTitles={appendSearchedTitles} />}/>
-      <div id="game-filters-container">
-        <Year appendTitles={appendSearchedTitles} titles={searchedTitles}/>
-        <Tags appendTitles={appendSearchedTitles} titles={searchedTitles}/>
-        <Platforms appendTitles={appendSearchedTitles} titles={searchedTitles}/>
-        <Publishers appendTitles={appendSearchedTitles} titles={searchedTitles}/>
+    <main id="search-page-bg">
+      <div id="search-page" onClick={openFilterOverlay}>
+        <Header item={<SearchBar appendTitles={appendSearchedTitles} />}/>
+        <div id="game-filters-container">
+          <Year appendTitles={appendSearchedTitles} titles={searchedTitles}/>
+          <Tags appendTitles={appendSearchedTitles} titles={searchedTitles}/>
+          <Platforms appendTitles={appendSearchedTitles} titles={searchedTitles}/>
+          <Publishers appendTitles={appendSearchedTitles} titles={searchedTitles}/>
+        </div>
+        <section id="searched-titles">
+          {searchedTitles.map(game=>
+            <div key={game._id} className="searched-title-container">
+              <div className='searched-title-image-container'>
+                <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
+              </div>
+              <div className='searched-title-title-container'>
+              < p className="searched-title-title">{game.title}</p>
+              </div>
+            </div>)}
+        </section>
+        {filterOverlay}
       </div>
-      <section id="searched-titles">
-        {searchedTitles.map(game=>
-          <div key={game._id} className="searched-title-container">
-            <div className='searched-title-image-container'>
-              <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
-            </div>
-            <div className='searched-title-title-container'>
-            < p className="searched-title-title">{game.title}</p>
-            </div>
-          </div>)}
-      </section>
-      {filterOverlay}
     </main>
   );
 }

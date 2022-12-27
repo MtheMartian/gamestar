@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './pages/App';
+import Search from './pages/Search';
 // import Root from './routes/root';
 import NoPage from './pages/NoPage';
-import HomePage from './pages/home';
+import HomePage from './pages/Home';
 import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
@@ -19,7 +19,7 @@ const router = createBrowserRouter([
   },
   {
     path:"/search",
-    element: <App />,
+    element: <Search />,
     errorElement: <NoPage />
   },
 ])
