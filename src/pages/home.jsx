@@ -1,7 +1,8 @@
 import React from 'react';
-import {useRef, useEffect, useState, useMemo} from 'react';
+import {useRef, useEffect, useState, useMemo, useCallback} from 'react';
 import '../css/homepage.css';
 import '../css/general.css';
+import '../css/carousel.css';
 import xbox from '../images/xbox.png';
 import playstation from '../images/ps.png';
 import pc from '../images/pc.png';
@@ -16,8 +17,9 @@ function SearchRedirect(){
   );
 }
 
+// Carousel
 function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
-    content, className, id, setTileTimer, tileNavigationFill, carouselNavFunction}){
+    content, className, setTileTimer, tileNavigationFill, carouselNavFunction}){
   // Go to next carousel tile, reset timer
   function nextTile(){
     clearInterval(tileTimer.current);
@@ -53,7 +55,7 @@ function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
   }
 
   return(
-    <button id={id} className={className} onClick={id === "right" ? nextTile : previousTile}>
+    <button className={className} onClick={content === ">" ? nextTile : previousTile}>
           {content}
     </button>
   )
@@ -87,7 +89,7 @@ function Carousel(){
    const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button"));
    tileNavs.forEach(element=>{
     if(element.id === `tile${tileCounter.current.toString()}`){
-      element.style.background = "rgba(240, 248, 255, 0.9)";
+      element.style.background = "rgba(49, 49, 49, 0.85)";
     }
     else{
       element.style.background = null;
@@ -99,18 +101,26 @@ function Carousel(){
   function carouselNavFunction(){
     // Right
     if(tileCounter.current === tilesNum - 1){
-      document.getElementById("right").classList.add("hidden");
+      Array.from(document.getElementsByClassName("right")).forEach(element=>{
+        element.classList.add("hidden");
+      });
     }
     else{
-      document.getElementById("right").classList.remove("hidden");
+      Array.from(document.getElementsByClassName("right")).forEach(element=>{
+        element.classList.remove("hidden");
+      });
     }
 
     // Left
     if(tileCounter.current === 0 || tileCounter.current === tilesNum){
-      document.getElementById("left").classList.add("hidden");
+      Array.from(document.getElementsByClassName("left")).forEach(element=>{
+        element.classList.add("hidden");
+      });
     }
     else{
-      document.getElementById("left").classList.remove("hidden");
+      Array.from(document.getElementsByClassName("left")).forEach(element=>{
+        element.classList.remove("hidden");
+      });
     }
   }
 
@@ -166,7 +176,6 @@ function Carousel(){
     tileTimer.current = setInterval(()=>{
       carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
       tileCounter.current++;
-      console.log(tileCounter);
       carouselNavFunction();
       if(tileCounter.current === tilesNum){
         carousel.current.scrollLeft = 0;
@@ -183,7 +192,7 @@ function Carousel(){
   return(
     <div id="home-page-carousel" ref={carousel}>
       {titlesCarousel.map((title, index) =>
-        <div className="carousel-title-wrapper" key={title._id} onTouchEnd={videoSelected}>
+        <div className="carousel-title-wrapper" key={title._id} onTouchEnd={document.querySelector('body').clientWidth >= 1200 ? videoSelected : null}>
           <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
           <div className="carousel-title-image-wrapper" title={title.title}>
             <img alt="title" src={title.imgURL} className="carousel-title-image" />
@@ -194,34 +203,87 @@ function Carousel(){
               {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
             </div>
           </div>
-          <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
-            title="Title Trailer" ref={trailer} onPointerOver={videoSelected} />
+          {document.querySelector('body').clientWidth >= 1200 ? 
+            <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
+            title="Title Trailer" ref={trailer} onPointerOver={videoSelected} /> : null
+          }
           <div className="carousel-title-summary-wrapper">
             <p className="carousel-title-summary">
               {title.summary}
             </p>
           </div>
+          <CarouselNavigation content={"<"} className={"hidden left"}
+          carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
+          tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
+          carousel={carousel} setTileTimer={setTileTimer}/>
+          <CarouselNavigation content={">"} className={"right"}
+          carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
+          tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
+          carousel={carousel} setTileTimer={setTileTimer}/>
+          <div className="tiles-navigation">
+            {tileNav}
+          </div>
         </div>)}
-        <CarouselNavigation content={"<"} className={"hidden"} id={"left"}
-          carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
-          tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
-          carousel={carousel} setTileTimer={setTileTimer}/>
-        <CarouselNavigation content={">"} className={""} id={"right"} 
-          carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
-          tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
-          carousel={carousel} setTileTimer={setTileTimer}/>
-        <div id="tiles-navigation">
-          {tileNav}
-        </div>
     </div>
   );
 }
 
+// All title categories
+function Categories(){
+  const genres = useRef([]);
+  const [titles, setTitles] = useState([]);
+  const allTitles = useMemo(()=> titles, [titles]);
+
+  const getGenres = useCallback(()=>{
+    if(typeof allTitles !== "undefined"){
+      allTitles.forEach((title, index) =>{
+        for(let i = 0; i < title.tags.length; i++){
+          if(!genres.current.includes(title.tags[i])){
+            genres.current.push(title.tags[i]);
+          }
+        }
+      });  
+    }
+  }, [allTitles])
+
+  getGenres();
+
+  useEffect(()=>{
+    fetch("/admintools.gamesportal/gettitles")
+    .then(response => response.json())
+    .then(data =>{
+      setTitles(prev => prev = data);
+    })
+    .catch(err=>{
+      console.log(err);
+    })
+  }, [])
+
+  return(
+    <div id="home-page-categories">
+      {genres.current.map((genre, index) =>
+        <div key={`genre${index}`} className="home-page-genre">
+          <h2 className="home-page-section-title">{genre}</h2>
+          {allTitles.map(title =>
+          title.tags.includes(genre) ? 
+          <div key={title._id} className="genre-titles" title={title.title}>
+            <img className="genre-title-image" src={title.imgURL} alt="Title" />
+            {/* <p className="genre-title-title">{title.title}</p> */}
+          </div> : null)}
+        </div>)}
+    </div>
+  );
+}
+
+// Home Page
 function HomePage(){
   return(
-    <main id="home-page">
+    <main id="home-page-bg">
+      <div id="home-page">
       <Header item={<SearchRedirect />}/>
       <Carousel />
+      <Categories />
+      </div>
     </main>
   );
 }

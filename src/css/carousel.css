@@ -1,0 +1,174 @@
+/* ------- Carousel ------- */
+#home-page-carousel{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+  width: 100vw;
+  height: 600px;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  background: rgb(0, 13, 29);
+  position: relative;
+}
+
+.carousel-title-wrapper{
+  min-width: 100%;
+  height: 100% !important;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  scroll-snap-stop: always;
+  scroll-snap-align: start;
+}
+
+.carousel-title-wrapper:hover .carousel-title-trailer{
+  transition-delay: 500ms;
+  height: 33rem;
+}
+
+.carousel-title-image{
+  width: 100%;
+  height: 50%;
+  object-fit: contain;
+}
+
+.carousel-title-image-wrapper{
+  z-index: 1;
+  position: relative;
+  transition: 150ms transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.carousel-title-imagebg{
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  object-fit: cover;
+  position: absolute;
+  filter: blur(0.5rem);
+}
+
+.carousel-title-image-wrapper:hover{
+  transform: scale(1.05);
+}
+
+.carousel-title-platforms{
+  z-index: 1;
+  position: absolute;
+  top: 71%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+  background:rgba(59, 59, 59, 0.5);
+  padding: 1.5px;
+}
+
+.carousel-title-platforms img{
+  width: 10%;
+}
+
+/* Carousel Navigation */
+.left{
+  position: absolute;
+  left: 0;
+  font-size: calc(0.8vw + 1rem);
+  font-weight: 700;
+  color: aliceblue;
+  z-index: 2;
+  height: 600px;
+  width: 7%;
+  text-align: center;
+  transition: 150ms background;
+}
+
+.right{
+  position: absolute;
+  right: 0;
+  font-size: calc(0.8vw + 1rem);
+  font-weight: 700;
+  color: aliceblue;
+  z-index: 2;
+  height: 600px;
+  width: 7%;
+  text-align: center;
+  transition: 150ms background;
+}
+
+.left:hover, .right:hover{
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.left:active, .right:active{
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.tiles-navigation{
+  position: absolute;
+  top: 570px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  width: 100%;
+  z-index: 1;
+  padding-right: 9%;
+}
+
+.tile-nav-button{
+  border: 2px solid black;
+  width: 3%;
+  height: 20px;
+  border-radius: 10px;
+}
+
+/* Carousel Trailer */
+.carousel-title-trailer{
+  width: 36rem;
+  height: 0;
+  position: absolute;
+  left: 8%;
+  border: none;
+  z-index: 1;
+  transition: 1s height;
+  display: none;
+}
+
+/* Carousel Summary */
+.carousel-title-summary-wrapper{
+  position: absolute;
+  right: 9%;
+  height: 100%;
+  overflow-y: auto;
+  text-align: center;
+  width: 25%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: aliceblue;
+  line-height: 2rem;
+  font-weight: 500;
+}
+
+.carousel-title-summary{
+  background: rgba(59, 59, 59, 0.5);
+  border-radius: 10px;
+  padding: 2rem;
+}
+
+@media screen and (min-width: 1200px){
+  .carousel-title-trailer{
+    display: unset;
+  }
+
+  .carousel-title-summary-wrapper{
+    display: flex;
+  }
+}

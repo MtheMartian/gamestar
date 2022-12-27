@@ -10,6 +10,15 @@
   position: relative;
 }
 
+#search-page-bg{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 /* ------- Game Filters ------- */
 #game-filters-container{
   width: 100%;
@@ -144,8 +153,6 @@ input[type="checkbox"]:checked::before {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   place-items: start;
-  position: absolute;
-  top: 200px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -160,6 +167,7 @@ input[type="checkbox"]:checked::before {
  font-weight: 700;
  font-size: calc(0.5vw + 0.8rem);
  transition: 120ms transform;
+ margin-bottom: 25px;
 }
 
 .searched-title-title-container{
@@ -185,7 +193,7 @@ input[type="checkbox"]:checked::before {
 }
 
 .searched-title-container:hover{
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 /* ------- Search Bar ------- */
