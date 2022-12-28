@@ -20,7 +20,7 @@ button{
   height: 100%;
 }
 
-/* ------- Genres ------- */
+/* ------- Categories ------- */
 #home-page-categories{
   width: 100%;
   display: flex;
@@ -28,25 +28,65 @@ button{
   align-items: center;
   justify-content: center;
   gap: 5rem;
+  transition: 150ms transform;
+}
+
+.category-navigation{
+  position: absolute;
+  color: aliceblue;
+  font-size: calc(1.5vw + 1rem);
+  font-weight: 700;
+  height: 100%;
+  width: 50px;
+  text-align: center;
+  z-index: 1;
+}
+
+.category-left{
+  left: 0;
+  opacity: 0;
+  transition: 150ms opacity;
+}
+
+.category-right{
+  right: 0;
+  opacity: 0;
+  transition: 150ms opacity;
+}
+
+.category-left:hover, .category-right:hover{
+  opacity: 1;
+}
+
+/* ------- Genres ------- */
+.home-page-genre-container{
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
 }
 
 .home-page-genre{
+  position: absolute;
   width: 100%;
+  padding: 3rem 3rem 3rem 1rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   overflow-x: hidden;
   overflow-y: hidden;
-  position: relative;
-  padding: 3rem;
   gap: 2rem;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
 }
 
 .home-page-section-title{
   position: absolute;
   top: 0;
   color: aliceblue;
-  left: 20px;
+  left: 1rem;
   font-weight: 700;
   font-size: calc(1vw + 0.5rem);
   z-index: 1;
@@ -57,10 +97,11 @@ button{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 240px;
-  height: 317px;
+  height: 100%;
   transition: 150ms transform, 150ms outline;
   cursor: pointer;
+  scroll-snap-stop: always;
+  scroll-snap-align: center;
 }
 
 .genre-titles:hover .genre-title-image{
@@ -70,8 +111,8 @@ button{
 
 .genre-title-image{
   outline: 3px solid rgba(255, 255, 255, 0.3);
-  min-width: 240px;
-  max-width: 100%;
+  min-width: 350px;
+  max-width: 350px;
   border-radius: 10px;
   box-sizing: border-box;
   transition: 150ms transform, 150ms outline;
@@ -83,6 +124,12 @@ button{
   width: 100%;
   text-align: center;
   font-size: calc(0.8vw + 0.5rem);
+}
+
+@media screen and (max-width: 1200px){
+  #home-page-categories{
+    transform: scale(0.9);
+  }
 }
 
 

@@ -89,7 +89,7 @@ function Carousel(){
    const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button"));
    tileNavs.forEach(element=>{
     if(element.id === `tile${tileCounter.current.toString()}`){
-      element.style.background = "rgba(49, 49, 49, 0.85)";
+      element.style.background = "rgba(44, 0, 58, 1)";
     }
     else{
       element.style.background = null;
@@ -192,7 +192,7 @@ function Carousel(){
   return(
     <div id="home-page-carousel" ref={carousel}>
       {titlesCarousel.map((title, index) =>
-        <div className="carousel-title-wrapper" key={title._id} onTouchEnd={document.querySelector('body').clientWidth >= 1200 ? videoSelected : null}>
+        <div className="carousel-title-wrapper" key={title._id} onClick={document.querySelector('body').clientWidth >= 1200 ? videoSelected : null}>
           <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
           <div className="carousel-title-image-wrapper" title={title.title}>
             <img alt="title" src={title.imgURL} className="carousel-title-image" />
@@ -228,12 +228,48 @@ function Carousel(){
   );
 }
 
+// Navigation button for categories
+function CategoryNavigation({content, className}){
+  function leftNav(event){
+    const relative = event.currentTarget.parentElement.children.item(1);
+    const parent = event.currentTarget.parentElement;
+    relative.scrollLeft -= 300;
+    if(relative.scrollLeft <= relative.clientWidth * 0.1){
+      parent.children.item(2).classList.add("hidden");
+      parent.children.item(3).classList.remove("hidden");
+    }
+    else{
+      parent.children.item(3).classList.remove("hidden");
+    }
+  }
+
+  function rightNav(event){
+    const relative = event.currentTarget.parentElement.children.item(1);
+    const parent = event.currentTarget.parentElement;
+    relative.scrollLeft += 300;
+    if(relative.scrollLeft > 0){
+      parent.children.item(2).classList.remove("hidden");
+    }
+    if(relative.scrollLeft >= relative.scrollWidth - relative.clientWidth){
+      parent.children.item(3).classList.add("hidden");
+    }
+  }
+
+  return(
+    <button className={className} onClick={content === "<" ? leftNav : rightNav}>
+      {content}
+    </button>
+  );
+}
+
 // All title categories
 function Categories(){
+  // Variables
   const genres = useRef([]);
   const [titles, setTitles] = useState([]);
   const allTitles = useMemo(()=> titles, [titles]);
 
+  // Put titles in the correct category
   const getGenres = useCallback(()=>{
     if(typeof allTitles !== "undefined"){
       allTitles.forEach((title, index) =>{
@@ -248,6 +284,15 @@ function Categories(){
 
   getGenres();
 
+  // Check if device is touch, if so enable scroll.
+  function ifTouch(){
+    const allCategories = Array.from(document.getElementsByClassName("home-page-genre"));
+    allCategories.forEach(element =>{
+      element.style.overflowX = "scroll";
+    })
+  }
+
+  // Get the titles
   useEffect(()=>{
     fetch("/admintools.gamesportal/gettitles")
     .then(response => response.json())
@@ -259,18 +304,32 @@ function Categories(){
     })
   }, [])
 
+  // Hide category navigations if element can't be scrolled.
+  useEffect(()=>{
+    const allCategories = Array.from(document.getElementsByClassName("home-page-genre"));
+    allCategories.forEach(element =>{
+      if(element.scrollWidth > element.offsetWidth){
+        element.parentElement.children.item(3).classList.remove("hidden");
+      }
+    });
+  }, [allTitles])
+
   return(
     <div id="home-page-categories">
       {genres.current.map((genre, index) =>
-        <div key={`genre${index}`} className="home-page-genre">
+        <div key={`genre${index}`} className="home-page-genre-container">
           <h2 className="home-page-section-title">{genre}</h2>
-          {allTitles.map(title =>
-          title.tags.includes(genre) ? 
-          <div key={title._id} className="genre-titles" title={title.title}>
-            <img className="genre-title-image" src={title.imgURL} alt="Title" />
-            {/* <p className="genre-title-title">{title.title}</p> */}
-          </div> : null)}
-        </div>)}
+          <div className="home-page-genre" onTouchStart={ifTouch}>
+            {allTitles.map(title =>
+            title.tags.includes(genre) ? 
+            <div key={title._id} className="genre-titles" title={title.title}>
+              <img className="genre-title-image" src={title.imgURL} alt="Title" />
+              {/* <p className="genre-title-title">{title.title}</p> */}
+            </div> : null)}
+          </div>
+          <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
+          <CategoryNavigation className={"category-navigation category-right hidden"} content={">"} />
+        </ div>)}
     </div>
   );
 }
