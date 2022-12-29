@@ -1,5 +1,6 @@
 import React from 'react';
 import {useState, useRef, useEffect} from 'react';
+import { Link } from 'react-router-dom';
 import { mainPageOptions, filtersArr } from '../js/main';
 import '../css/search-page.css';
 import '../css/general.css';
@@ -46,7 +47,7 @@ function SearchBar({appendTitles}){
 
   function showClearButton(){
     if(searchValue.current.value !== ""){
-      setClear(<ClearBarButton />);
+      setClear(prev=>prev = <ClearBarButton />);
     }
     else{
       setClear(null);
@@ -95,6 +96,11 @@ function SearchBar({appendTitles}){
       console.log(err);
     }
   }
+
+  useEffect(()=>{
+    setCurrentValue(prev => prev = url);
+    setTimeout(showClearButton, 100);
+  },[url]);
 
   return(
     <div id='searchbar-container'>
@@ -533,9 +539,9 @@ function App(){
         <section id="searched-titles">
           {searchedTitles.map(game=>
             <div key={game._id} className="searched-title-container">
-              <div className='searched-title-image-container'>
+              <Link className='searched-title-image-container' to={`/info?title=${game._id}`}>
                 <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
-              </div>
+              </Link>
               <div className='searched-title-title-container'>
               < p className="searched-title-title">{game.title}</p>
               </div>

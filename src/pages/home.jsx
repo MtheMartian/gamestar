@@ -1,5 +1,6 @@
 import React from 'react';
 import {useRef, useEffect, useState, useMemo, useCallback} from 'react';
+import { Link } from 'react-router-dom';
 import '../css/homepage.css';
 import '../css/general.css';
 import '../css/carousel.css';
@@ -11,9 +12,9 @@ import Header from '../general-components/header';
 
 function SearchRedirect(){
   return(
-    <a href="/search">
+    <Link to="/search">
       <img alt="search"></img>
-    </a>
+    </Link>
   );
 }
 
@@ -194,7 +195,7 @@ function Carousel(){
       {titlesCarousel.map((title, index) =>
         <div className="carousel-title-wrapper" key={title._id} onClick={document.querySelector('body').clientWidth >= 1200 ? videoSelected : null}>
           <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
-          <div className="carousel-title-image-wrapper" title={title.title}>
+          <Link className="carousel-title-image-wrapper" title={title.title} to={`/info?title=${title._id}`}>
             <img alt="title" src={title.imgURL} className="carousel-title-image" />
             <div className="carousel-title-platforms">
               {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? <img src={xbox} alt="Xbox"/> : null}
@@ -202,7 +203,7 @@ function Carousel(){
               {title.platforms.includes("PC") ? <img src={pc} alt="Xbox"/> : null}
               {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
             </div>
-          </div>
+          </Link>
           {document.querySelector('body').clientWidth >= 1200 ? 
             <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
             title="Title Trailer" ref={trailer} onPointerOver={videoSelected} /> : null
@@ -322,10 +323,10 @@ function Categories(){
           <div className="home-page-genre" onTouchStart={ifTouch}>
             {allTitles.map(title =>
             title.tags.includes(genre) ? 
-            <div key={title._id} className="genre-titles" title={title.title}>
+            <Link key={title._id} className="genre-titles" title={title.title} to={`/info?title=${title._id}`}>
               <img className="genre-title-image" src={title.imgURL} alt="Title" />
               {/* <p className="genre-title-title">{title.title}</p> */}
-            </div> : null)}
+            </Link> : null)}
           </div>
           <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
           <CategoryNavigation className={"category-navigation category-right hidden"} content={">"} />
