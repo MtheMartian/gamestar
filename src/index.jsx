@@ -4,6 +4,7 @@ import Search from './pages/Search';
 // import Root from './routes/root';
 import NoPage from './pages/NoPage';
 import HomePage from './pages/Home';
+import Info from './pages/TitleInfo';
 import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
@@ -22,6 +23,11 @@ const router = createBrowserRouter([
     element: <Search />,
     errorElement: <NoPage />
   },
+  {
+    path: "/info",
+    element: <Info />,
+    errorElement: <NoPage />
+  }
 ])
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

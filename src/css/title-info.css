@@ -1,0 +1,81 @@
+#title-info-page-bg{
+  background: linear-gradient( rgba(13, 0, 34, 0.85) 10%, rgba(13, 0, 34, 0.85) 10%, rgb(0, 0, 0), rgba(13, 0, 34, 0.85)33%, rgb(0, 0, 0), rgb(0, 0, 0)),
+  linear-gradient(to bottom, rgba(13, 0, 34, 0.85) 10%, rgba(13, 0, 34, 0.85) 10%, rgb(0, 0, 0), rgba(13, 0, 34, 0.85)33%, rgb(0, 0, 0), rgb(0, 0, 0));
+  width: 100vw;
+  height: 100vh;
+}
+
+#title-info-page{
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: calc(100% - 80px);
+}
+
+#card-container{
+  margin-top: 2rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#card{
+  width: 95%;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 1px 1px 10px rgba(28, 65, 168, 0.8);
+  background: rgba(59, 59, 59, 0.3);
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+#card-title-platforms{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 3px;
+  background:rgba(0, 0, 0, 0.95);
+  padding: 1.5px;
+  position: absolute;
+  right: 40%;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+}
+
+#card-title-platforms a {
+ width: 100%;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+}
+
+#card-title-platforms img{
+  width: 50%;
+}
+
+.card-title-image{
+  width: 60%;
+}
+
+#card-title-summary-wrapper{
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  text-align: center;
+  color: aliceblue;
+  letter-spacing: 1px;
+  line-height: 2rem;
+  font-weight: 500;
+}
+
+#card-title-summary{
+  width: 95%;
+}
