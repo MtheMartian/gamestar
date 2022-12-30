@@ -36,13 +36,14 @@
 }
 
 .carousel-title-image-wrapper{
-  z-index: 1;
+  z-index: 3;
   position: relative;
   transition: 150ms transform;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: 150ms transform;
 }
 
 .carousel-title-imagebg{
@@ -128,7 +129,7 @@
   justify-content: flex-end;
   gap: 7px;
   width: 100%;
-  z-index: 1;
+  z-index: 4;
   padding-right: 9%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -145,12 +146,20 @@
 .carousel-title-trailer{
   width: 36rem;
   height: 0;
-  position: absolute;
-  left: 8%;
   border: none;
-  z-index: 1;
   transition: 1s height;
   display: none;
+  position: absolute;
+  left: 8%;
+  z-index: 1;
+}
+
+.carousel-title-trailer-event-trigger{
+  position: absolute;
+  left: 8%;
+  z-index: 2;
+  height: 33rem;
+  width: 36rem;
 }
 
 /* Carousel Summary */
@@ -186,6 +195,12 @@
   .carousel-title-summary-wrapper{
     display: flex;
     align-items: center;
+  }
+}
+
+@media screen and (max-width: 1100px){
+  .carousel-title-image-wrapper{
+    transform: scale(1.6);
   }
 }
 
