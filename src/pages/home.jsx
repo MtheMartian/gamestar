@@ -29,7 +29,13 @@ function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
     carouselNavFunction();
     setTileTimer();
     tileNavigationFill();
+    Array.from(document.getElementsByClassName("carousel-title-image-wrapper")).forEach(element=>{
+      element.style.cssText = null;
+    });
     Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+      element.style.cssText = null;
+    });
+    Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger")).forEach(element=>{
       element.style.cssText = null;
     });
     if(tileCounter.current > tilesNum){
@@ -46,7 +52,13 @@ function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
     carouselNavFunction();
     setTileTimer();
     tileNavigationFill();
+    Array.from(document.getElementsByClassName("carousel-title-image-wrapper")).forEach(element=>{
+      element.style.cssText = null;
+    });
     Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+      element.style.cssText = null;
+    });
+    Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger")).forEach(element=>{
       element.style.cssText = null;
     });
     if(tileCounter.current < 0){
@@ -76,10 +88,21 @@ function Carousel(){
   const trailer = useRef(null);
 
   // Display video if hovered over (PC) or tapped (Mobile).
-  function videoSelected(event){
+  function videoSelected(){
+    const iFrameTrigger = Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger"));
+    const iFrames = Array.from(document.getElementsByClassName("carousel-title-trailer"));
+    const carouselTitles = Array.from(document.getElementsByClassName("carousel-title-image-wrapper"));
     console.log("Clicked on video!");
     clearInterval(tileTimer.current);
-    event.currentTarget.style.height = "33rem";
+    carouselTitles.forEach(element=>{
+      element.style["z-index"] = "1";
+    })
+    iFrames.forEach(element =>{
+      element.style.height = "33rem";
+    });
+    iFrameTrigger.forEach(element=>{
+      element.style.display = " none";
+    })
   }
 
   // Variables (Carousel Navigation)
@@ -151,6 +174,15 @@ function Carousel(){
               tileCounter.current = i;
               tileNavigationFill();
               carouselNavFunction();
+              Array.from(document.getElementsByClassName("carousel-title-image-wrapper")).forEach(element=>{
+                element.style.cssText = null;
+              });
+              Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+                element.style.cssText = null;
+              });
+              Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger")).forEach(element=>{
+                element.style.cssText = null;
+              });
               clearInterval(tileTimer.current);
               setTileTimer();
             }}>
@@ -193,7 +225,7 @@ function Carousel(){
   return(
     <div id="home-page-carousel" ref={carousel}>
       {titlesCarousel.map((title, index) =>
-        <div className="carousel-title-wrapper" key={title._id} onClick={document.querySelector('body').clientWidth >= 1200 ? videoSelected : null}>
+        <div className="carousel-title-wrapper" key={title._id} >
           <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
           <Link className="carousel-title-image-wrapper" title={title.title} to={`/info?title=${title._id}`}>
             <img alt="title" src={title.imgURL} className="carousel-title-image" />
@@ -204,15 +236,21 @@ function Carousel(){
               {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
             </div>
           </Link>
-          {document.querySelector('body').clientWidth >= 1200 ? 
-            <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
-            title="Title Trailer" ref={trailer} onPointerOver={videoSelected} /> : null
-          }
-          <div className="carousel-title-summary-wrapper">
-            <p className="carousel-title-summary">
-              {title.summary}
-            </p>
-          </div>
+            {document.querySelector('body').clientWidth >= 1200 ? 
+              <div className="carousel-title-trailer-event-trigger" onClick={videoSelected}>
+              </div> : null
+            }
+            {document.querySelector('body').clientWidth >= 1200 ? 
+              <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
+              title="Title Trailer" ref={trailer} /> : null
+            }
+            {document.querySelector('body').clientWidth >= 1700 ?
+              <div className="carousel-title-summary-wrapper">
+              <p className="carousel-title-summary">
+                {title.summary}
+              </p>
+              </div> : null
+            }
           <CarouselNavigation content={"<"} className={"hidden left"}
           carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
           tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
@@ -230,7 +268,7 @@ function Carousel(){
 }
 
 // Navigation button for categories
-function CategoryNavigation({content, className}){
+ export function CategoryNavigation({content, className}){
   function leftNav(event){
     const relative = event.currentTarget.parentElement.children.item(1);
     const parent = event.currentTarget.parentElement;
@@ -325,7 +363,6 @@ function Categories(){
             title.tags.includes(genre) ? 
             <Link key={title._id} className="genre-titles" title={title.title} to={`/info?title=${title._id}`}>
               <img className="genre-title-image" src={title.imgURL} alt="Title" />
-              {/* <p className="genre-title-title">{title.title}</p> */}
             </Link> : null)}
           </div>
           <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
