@@ -19,10 +19,25 @@ function SearchRedirect(){
 }
 
 function Card(){
-  const [title, setTitle] = useState(null);
+  const [title, setTitle] = useState({
+    platforms: [""],
+    imgURL: "",
+    consoleLinks: {
+      xbox: "",
+      pStore: "",
+      nintendo: "",
+    },
+    pcLinks: {
+      steam: "",
+      epicStore: "",
+    },
+    summary: "",
+    releaseDate: "",
+  });
 
   useEffect(()=>{
-    const url = window.location.href.toLowerCase();
+    const url: string = window.location.href.toLowerCase();
+    
     let index = 0;
     
     for(let i = 0; i < url.length; i++){
@@ -66,7 +81,10 @@ function Card(){
 }
 
 function Videos(){
-  const [title, setTitle] = useState(null);
+  const [title, setTitle] = useState({
+    videoURL: "",
+    gameplayVid: "",
+  });
 
   useEffect(()=>{
     const url = window.location.href.toLowerCase();
@@ -102,12 +120,18 @@ function Videos(){
 }
 
 function SimilarTitles(){
-  const [titles, setTitles] = useState([]);
-  const similarTitles = useRef(null);
+  const [titles, setTitles] = useState([{
+    _id: "",
+    imgURL: "",
+    title: "",
+  }]);
+  const similarTitles = useRef<HTMLDivElement | null>(null);
 
   // Check if device is touch, if so enable scroll.
   function ifTouch(){
-    similarTitles.current.style.overflowX = "scroll";
+    if(similarTitles.current){
+      similarTitles.current.style.overflowX = "scroll";
+    }
   }
 
   useEffect(()=>{
@@ -133,8 +157,10 @@ function SimilarTitles(){
   }, [])
 
   useEffect(()=>{
-    if(similarTitles.current.scrollWidth > similarTitles.current.offsetWidth){
-      similarTitles.current.parentElement.children.item(3).classList.remove("hidden");
+    if(similarTitles.current){
+      if(similarTitles.current.scrollWidth > similarTitles.current.offsetWidth){
+        similarTitles.current.parentElement!.children.item(3)!.classList.remove("hidden");
+      }
     }
   }, [titles])
 
@@ -151,7 +177,7 @@ function SimilarTitles(){
       <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
       <CategoryNavigation className={"category-navigation category-right hidden"} content={">"} />
     </section>
-  )
+  );
 }
 
 function TitleInfo(){
