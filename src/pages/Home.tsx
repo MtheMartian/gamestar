@@ -19,51 +19,67 @@ function SearchRedirect(){
 }
 
 // Carousel
+type CarouselNavigationProps = {
+  carousel: React.MutableRefObject<HTMLDivElement | null>,
+  tileTimer: React.MutableRefObject<NodeJS.Timer | null>,
+  tileCounter: React.MutableRefObject<number>,
+  tilesNum: number,
+  content: string,
+  className: string,
+  setTileTimer: Function,
+  tileNavigationFill: Function,
+  carouselNavFunction: Function,
+}
+
 function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
-    content, className, setTileTimer, tileNavigationFill, carouselNavFunction}){
+    content, className, setTileTimer, tileNavigationFill, carouselNavFunction} : CarouselNavigationProps){
   // Go to next carousel tile, reset timer
   function nextTile(){
-    clearInterval(tileTimer.current);
-    carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
-    tileCounter.current++;
-    carouselNavFunction();
-    setTileTimer();
-    tileNavigationFill();
-    Array.from(document.getElementsByClassName("carousel-title-image-wrapper")).forEach(element=>{
-      element.style.cssText = null;
-    });
-    Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
-      element.style.cssText = null;
-    });
-    Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger")).forEach(element=>{
-      element.style.cssText = null;
-    });
-    if(tileCounter.current > tilesNum){
-      tileCounter.current = 0;
-      carousel.current.scrollLeft = 0;
+    if(carousel.current){
+      clearInterval(tileTimer.current!);
+      carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
+      tileCounter.current++;
+      carouselNavFunction();
+      setTileTimer();
+      tileNavigationFill();
+      Array.from(document.getElementsByClassName("carousel-title-image-wrapper") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
+        element.style.cssText = "";
+      });
+      Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+        element.style.cssText = "";
+      });
+      Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
+        element.style.cssText = "";
+      });
+      if(tileCounter.current > tilesNum){
+        tileCounter.current = 0;
+        carousel.current.scrollLeft = 0;
+      }
     }
   }
 
   // Go to previous carousel tile, reset timer
   function previousTile(){
-    clearInterval(tileTimer.current);
-    carousel.current.scrollLeft -= carousel.current.clientWidth * 0.65;
-    tileCounter.current--;
-    carouselNavFunction();
-    setTileTimer();
-    tileNavigationFill();
-    Array.from(document.getElementsByClassName("carousel-title-image-wrapper")).forEach(element=>{
-      element.style.cssText = null;
-    });
-    Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
-      element.style.cssText = null;
-    });
-    Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger")).forEach(element=>{
-      element.style.cssText = null;
-    });
-    if(tileCounter.current < 0){
-      tileCounter.current = 0;
-      carousel.current.scrollLeft = 0;
+    if(carousel.current){
+      clearInterval(tileTimer.current!);
+      carousel.current.scrollLeft -= carousel.current.clientWidth * 0.65;
+      tileCounter.current--;
+      carouselNavFunction();
+      setTileTimer();
+      tileNavigationFill();
+      Array.from(document.getElementsByClassName("carousel-title-image-wrapper") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
+        element.style.cssText = "";
+      });
+      Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
+        element.style.cssText = "";
+      });
+      Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
+        element.style.cssText = "";
+      });
+      if(tileCounter.current < 0){
+        tileCounter.current = 0;
+        carousel.current.scrollLeft = 0;
+      }
     }
   }
 
@@ -76,26 +92,33 @@ function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
 
 function Carousel(){ 
   // Variables (Carousel)
-  const carousel = useRef(null);
-  const [titlesCarousel, setTitlesCarousel] = useState([]);
+  const carousel = useRef<HTMLDivElement | null>(null);
+  const [titlesCarousel, setTitlesCarousel] = useState([{
+    platforms: [""],
+    imgURL: "",
+    title: "",
+    _id: "",
+    summary:"",
+    videoURL: "",
+  }]);
 
   // Variables (Carousel timer/Counter)
-  const tilesNum = useMemo(()=> titlesCarousel.length, [titlesCarousel]);
-  let tileCounter = useRef(0);
-  const tileTimer = useRef(null);
+  const tilesNum = useMemo<number>(()=> titlesCarousel.length, [titlesCarousel]);
+  let tileCounter = useRef<number>(0);
+  const tileTimer = useRef<NodeJS.Timer | null>(null);
 
   // Variables (Trailer Video)
   const trailer = useRef(null);
 
   // Display video if hovered over (PC) or tapped (Mobile).
   function videoSelected(){
-    const iFrameTrigger = Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger"));
-    const iFrames = Array.from(document.getElementsByClassName("carousel-title-trailer"));
-    const carouselTitles = Array.from(document.getElementsByClassName("carousel-title-image-wrapper"));
+    const iFrameTrigger = Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger") as HTMLCollectionOf<HTMLDivElement>);
+    const iFrames = Array.from(document.getElementsByClassName("carousel-title-trailer") as HTMLCollectionOf<HTMLIFrameElement>);
+    const carouselTitles = Array.from(document.getElementsByClassName("carousel-title-image-wrapper") as HTMLCollectionOf<HTMLDivElement>);
     console.log("Clicked on video!");
-    clearInterval(tileTimer.current);
+    clearInterval(tileTimer.current!);
     carouselTitles.forEach(element=>{
-      element.style["z-index"] = "1";
+      element.style.zIndex = "1";
     })
     iFrames.forEach(element =>{
       element.style.height = "33rem";
@@ -106,17 +129,17 @@ function Carousel(){
   }
 
   // Variables (Carousel Navigation)
-  const [tileNav, setTileNav] = useState([]);
+  const [tileNav, setTileNav] = useState<JSX.Element[]>([]);
 
   // Fill background of tile navigation buttons based on tile counter
   function tileNavigationFill(){
-   const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button"));
+   const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button") as HTMLCollectionOf<HTMLButtonElement>);
    tileNavs.forEach(element=>{
     if(element.id === `tile${tileCounter.current.toString()}`){
       element.style.background = "rgba(44, 0, 58, 1)";
     }
     else{
-      element.style.background = null;
+      element.style.background = "";
     }
    });
   }
@@ -151,11 +174,11 @@ function Carousel(){
   // Set carousel timer after reset
   function setTileTimer(){
     tileTimer.current = setInterval(()=>{
-      carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
+      carousel.current!.scrollLeft += carousel.current!.clientWidth * 0.65;
       tileCounter.current++;
       carouselNavFunction();
       if(tileCounter.current === tilesNum){
-        carousel.current.scrollLeft = 0;
+        carousel.current!.scrollLeft = 0;
         tileCounter.current = 0;
       }
       tileNavigationFill();
@@ -170,20 +193,20 @@ function Carousel(){
         jsxElements.push(
           <button key={i} id={`tile${i}`}className="tile-nav-button"
             onClick={()=>{
-              carousel.current.scrollLeft = carousel.current.clientWidth * i;
+              carousel.current!.scrollLeft = carousel.current!.clientWidth * i;
               tileCounter.current = i;
               tileNavigationFill();
               carouselNavFunction();
-              Array.from(document.getElementsByClassName("carousel-title-image-wrapper")).forEach(element=>{
-                element.style.cssText = null;
+              Array.from(document.getElementsByClassName("carousel-title-image-wrapper") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
+                element.style.cssText = "";
               });
               Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
-                element.style.cssText = null;
+                element.style.cssText = "";
               });
-              Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger")).forEach(element=>{
-                element.style.cssText = null;
+              Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
+                element.style.cssText = "";
               });
-              clearInterval(tileTimer.current);
+              clearInterval(tileTimer.current!);
               setTileTimer();
             }}>
           </button>
@@ -207,18 +230,18 @@ function Carousel(){
     });
 
     tileTimer.current = setInterval(()=>{
-      carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
+      carousel.current!.scrollLeft += carousel.current!.clientWidth * 0.65;
       tileCounter.current++;
       carouselNavFunction();
       if(tileCounter.current === tilesNum){
-        carousel.current.scrollLeft = 0;
+        carousel.current!.scrollLeft = 0;
         tileCounter.current = 0;
       }
       tileNavigationFill();
     }, 9000);
 
     return ()=>{
-      clearInterval(tileTimer.current);
+      clearInterval(tileTimer.current!);
     }
   }, [tilesNum]);
 
@@ -236,15 +259,15 @@ function Carousel(){
               {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
             </div>
           </Link>
-            {document.querySelector('body').clientWidth >= 1200 ? 
+            {document.querySelector('body')!.clientWidth >= 1200 ? 
               <div className="carousel-title-trailer-event-trigger" onClick={videoSelected}>
               </div> : null
             }
-            {document.querySelector('body').clientWidth >= 1200 ? 
+            {document.querySelector('body')!.clientWidth >= 1200 ? 
               <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
               title="Title Trailer" ref={trailer} /> : null
             }
-            {document.querySelector('body').clientWidth >= 1700 ?
+            {document.querySelector('body')!.clientWidth >= 1700 ?
               <div className="carousel-title-summary-wrapper">
               <p className="carousel-title-summary">
                 {title.summary}
@@ -268,29 +291,34 @@ function Carousel(){
 }
 
 // Navigation button for categories
- export function CategoryNavigation({content, className}){
-  function leftNav(event){
-    const relative = event.currentTarget.parentElement.children.item(1);
-    const parent = event.currentTarget.parentElement;
-    relative.scrollLeft -= 300;
-    if(relative.scrollLeft <= relative.clientWidth * 0.1){
-      parent.children.item(2).classList.add("hidden");
-      parent.children.item(3).classList.remove("hidden");
+type CategoryNavigationProps = {
+  content: string,
+  className: string,
+}
+
+ export function CategoryNavigation({content, className}: CategoryNavigationProps){
+  function leftNav(event: React.MouseEvent<HTMLButtonElement>){
+    const relative = event.currentTarget.parentElement!.children.item(1);
+    const parent = event.currentTarget!.parentElement;
+    relative!.scrollLeft -= 300;
+    if(relative!.scrollLeft <= relative!.clientWidth * 0.1){
+      parent!.children.item(2)!.classList.add("hidden");
+      parent!.children.item(3)!.classList.remove("hidden");
     }
     else{
-      parent.children.item(3).classList.remove("hidden");
+      parent!.children.item(3)!.classList.remove("hidden");
     }
   }
 
-  function rightNav(event){
-    const relative = event.currentTarget.parentElement.children.item(1);
+  function rightNav(event: React.MouseEvent<HTMLButtonElement>){
+    const relative = event.currentTarget.parentElement!.children.item(1);
     const parent = event.currentTarget.parentElement;
-    relative.scrollLeft += 300;
-    if(relative.scrollLeft > 0){
-      parent.children.item(2).classList.remove("hidden");
+    relative!.scrollLeft += 300;
+    if(relative!.scrollLeft > 0){
+      parent!.children.item(2)!.classList.remove("hidden");
     }
-    if(relative.scrollLeft >= relative.scrollWidth - relative.clientWidth){
-      parent.children.item(3).classList.add("hidden");
+    if(relative!.scrollLeft >= relative!.scrollWidth - relative!.clientWidth){
+      parent!.children.item(3)!.classList.add("hidden");
     }
   }
 
@@ -301,37 +329,40 @@ function Carousel(){
   );
 }
 
-// All title categories
+// All categories
 function Categories(){
   // Variables
-  const genres = useRef([]);
-  const [titles, setTitles] = useState([]);
-  const allTitles = useMemo(()=> titles, [titles]);
+  const genres = useRef<[string]>([""]);
+  const [titles, setTitles] = useState([{
+    tags: [""],
+    _id: "",
+    title: "",
+    imgURL: "",
+  }]);
 
-  // Put titles in the correct category
+  // Store all the categories in an array
   const getGenres = useCallback(()=>{
-    if(typeof allTitles !== "undefined"){
-      allTitles.forEach((title, index) =>{
-        for(let i = 0; i < title.tags.length; i++){
-          if(!genres.current.includes(title.tags[i])){
-            genres.current.push(title.tags[i]);
-          }
+    genres.current[0] = titles[0].tags[0];
+    titles.forEach((title, index) =>{
+      for(let i = 0; i < title.tags.length; i++){
+        if(!genres.current.includes(title.tags[i])){
+          genres.current.push(title.tags[i]);
         }
-      });  
-    }
-  }, [allTitles])
+      }
+    });  
+  }, [titles])
 
   getGenres();
 
   // Check if device is touch, if so enable scroll.
   function ifTouch(){
-    const allCategories = Array.from(document.getElementsByClassName("home-page-genre"));
+    const allCategories = Array.from(document.getElementsByClassName("home-page-genre") as HTMLCollectionOf<HTMLDivElement>);
     allCategories.forEach(element =>{
       element.style.overflowX = "scroll";
     })
   }
 
-  // Get the titles
+  // Get all titles
   useEffect(()=>{
     fetch("/admintools.gamesportal/gettitles")
     .then(response => response.json())
@@ -345,13 +376,13 @@ function Categories(){
 
   // Hide category navigations if element can't be scrolled.
   useEffect(()=>{
-    const allCategories = Array.from(document.getElementsByClassName("home-page-genre"));
+    const allCategories = Array.from(document.getElementsByClassName("home-page-genre") as HTMLCollectionOf<HTMLDivElement>);
     allCategories.forEach(element =>{
       if(element.scrollWidth > element.offsetWidth){
-        element.parentElement.children.item(3).classList.remove("hidden");
+        element.parentElement!.children.item(3)!.classList.remove("hidden");
       }
     });
-  }, [allTitles])
+  }, [titles])
 
   return(
     <div id="home-page-categories">
@@ -359,7 +390,7 @@ function Categories(){
         <div key={`genre${index}`} className="home-page-genre-container">
           <h2 className="home-page-section-title">{genre}</h2>
           <div className="home-page-genre" onTouchStart={ifTouch}>
-            {allTitles.map(title =>
+            {titles.map(title =>
             title.tags.includes(genre) ? 
             <Link key={title._id} className="genre-titles" title={title.title} to={`/info?title=${title._id}`}>
               <img className="genre-title-image" src={title.imgURL} alt="Title" />
