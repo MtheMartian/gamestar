@@ -1,14 +1,19 @@
 import React from "react";
 
-export default function Header<HTMLElement>(item : HTMLElement){
+type HeaderProps = {
+  item: JSX.Element | JSX.Element[],
+}
+
+export default function Header({item}: HeaderProps ){
   return(
     <header id="main-header">
       <div id="left-side">
         <div id="logo">
           <p><a href="/">Logo</a></p>
         </div>
-        {!!item}
+        {item}
       </div>
     </header>
   );
 }
+
