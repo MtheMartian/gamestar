@@ -1,7 +1,24 @@
-export const mainPageOptions : {
+export interface SearchPage{
   isSelectionOpen: boolean,
-  foundTitles: Array<{}>
-} = {isSelectionOpen: false, foundTitles: [{tags: [""]}],};
+  foundTitles: Array<{}>,
+}
+
+export const mainPageOptions = {
+  isSelectionOpen: false,
+  foundTitles: [{
+    tags: [""],
+    platforms: [""],
+    releaseDate: "",
+    publisher: "",
+    imgURL: "",
+    _id: "",
+    title: "",
+  }],
+} 
+
+
+
+
 
 
 export const filtersArr: {[key: string]: string[],
