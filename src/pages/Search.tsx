@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { SyntheticEvent } from 'react';
 import {useState, useRef, useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import { mainPageOptions, filtersArr } from '../js/main';
+import { mainPageOptions, filtersArr } from '../js/search-page';
 import '../css/search-page.css';
 import '../css/general.css';
 import Header from '../general-components/header';
@@ -19,19 +19,24 @@ function clearFiltersArr(){
   });
 }
 
-function SearchBar({appendTitles}){
+// Search Bar
+type SearchbarProps = {
+  appendTitles: Function,
+}
+
+function SearchBar({appendTitles}: SearchbarProps){
   // Variables
-  const searchValue = useRef(null);
-  const [clear, setClear] = useState(null);
-  let url = "";
-  const [currentValue, setCurrentValue] = useState(url);
+  const searchValue = useRef<HTMLInputElement | null>(null);
+  const [clear, setClear] = useState<JSX.Element | null>(null);
+  let url: string = "";
+  const [currentValue, setCurrentValue] = useState<string>(url);
 
   // Clear search bar
   function ClearBarButton(){
     function clearBar(){
       setCurrentValue("");
-      window.history.pushState(null, null, `?entry=`);
-      setClear(null);
+      window.history.pushState(null, "", `?entry=`);
+      setClear(prev => prev = null);
       setTimeout(searchForTitle, 600);
     }
 
@@ -46,7 +51,7 @@ function SearchBar({appendTitles}){
   }
 
   function showClearButton(){
-    if(searchValue.current.value !== ""){
+    if(searchValue.current!.value !== ""){
       setClear(prev=>prev = <ClearBarButton />);
     }
     else{
@@ -56,7 +61,7 @@ function SearchBar({appendTitles}){
 
   // Set the value of the search bar if query is present in URL on load
   if(window.location.href.includes("?entry=")){
-    let index = 0;
+    let index: number = 0;
     for(let i = 0; i < window.location.href.length; i++){
       if(window.location.href[i] === "="){
         index = i + 1;
@@ -67,22 +72,22 @@ function SearchBar({appendTitles}){
   }
 
   // Set user inputs into the search bar and url (useful for history)
-  function getInput(event){
+  function getInput(event: SyntheticEvent<HTMLInputElement>){
+    let e = event.nativeEvent as CompositionEvent;
     showClearButton();
-    if(event.nativeEvent.data === null){
-      setCurrentValue(currentValue.slice(0, -1));
-
+    if(e.data === null){
+      setCurrentValue(prev => prev = prev.slice(0, -1));
     }
     else{
-      setCurrentValue(currentValue + event.nativeEvent.data);
+      setCurrentValue(prev => prev = prev + e.data);
     }
-    window.history.pushState(null, null, `?entry=${searchValue.current.value}`);
+    window.history.pushState(null, "", `?entry=${searchValue.current!.value}`);
   }
 
   // Search for titles based on search bar value
   async function searchForTitle(){
     try{
-      const response = await fetch(`/search?entry=${searchValue.current.value.toLowerCase()}`,{
+      const response = await fetch(`/search?entry=${searchValue.current!.value.toLowerCase()}`,{
         method: 'get'
       });
       await response.json()
@@ -106,32 +111,45 @@ function SearchBar({appendTitles}){
     <div id='searchbar-container'>
       <input id='searchbar' autoFocus autoComplete='off' placeholder="Search for titles"  
             ref={searchValue} onKeyUp={searchForTitle} 
-            value={currentValue} onInput={getInput}/>
+            value={currentValue}  onChange={getInput}/>
       {clear}
     </div>
   );
 }
 
-// All Filters and filter overlay.   
+// All Filters and filter overlay.
+
+type FilterProps = {
+  appendTitles: Function,
+  titles: object[],
+}
 // All written in the same order, except overlay.
-function Tags({appendTitles, titles}){
+function Tags({appendTitles, titles}: FilterProps){
   // Variables
-  const filter = useRef(null);
-  const filterBg = useRef(null);
-  const [tags, setTags] = useState([]);
+  const filter = useRef<HTMLUListElement | null>(null);
+  const filterBg = useRef<HTMLDivElement | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
 
   // Open the filter and some styling stuff
   function showFilter(){
     if(mainPageOptions.isSelectionOpen === false){
       mainPageOptions.isSelectionOpen = true;
-      filter.current.classList.remove('hidden');
-      filterBg.current.style.background = "rgb(0, 6, 12)";
-      filterBg.current.style.border = "2px solid rgba(107, 107, 107, 1)";
+      filter.current!.classList.remove('hidden');
+      filterBg.current!.style.border = "2px solid rgba(107, 107, 107, 1)";
+    }
+    else{
+      mainPageOptions.isSelectionOpen = false;
+      Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
+        element.classList.add('hidden');
+      });
+      Array.from(document.getElementsByClassName('filters') as HTMLCollectionOf<HTMLDivElement>).forEach(element =>{
+        element.style.cssText = "";
+      });
     }
   }
 
   // Filter titles based on selected filters
-  function applyFilter(event){
+  function applyFilter(event: React.ChangeEvent<HTMLInputElement>){
     const value = event.target.value;
     if(event.target.checked){
       filtersArr.genre.push(value);
@@ -190,23 +208,31 @@ function Tags({appendTitles, titles}){
   );
 }
 
-function Platforms({appendTitles, titles}){
+function Platforms({appendTitles, titles}: FilterProps){
   // Variables
-  const filter = useRef(null);
-  const filterBg = useRef(null);
-  const [platforms, setPlatforms] = useState([]);
+  const filter = useRef<HTMLUListElement | null>(null);
+  const filterBg = useRef<HTMLDivElement | null>(null);
+  const [platforms, setPlatforms] = useState<string[]>([]);
   
   function showFilter(){
     if(mainPageOptions.isSelectionOpen === false){
       mainPageOptions.isSelectionOpen = true;
-      filter.current.classList.remove('hidden');
-      filterBg.current.style.background = "rgb(0, 6, 12)";
-      filterBg.current.style.border = "2px solid rgba(107, 107, 107, 1)";
+      filter.current!.classList.remove('hidden');
+      filterBg.current!.style.border = "2px solid rgba(107, 107, 107, 1)";
+    }
+    else{
+      mainPageOptions.isSelectionOpen = false;
+      Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
+        element.classList.add('hidden');
+      });
+      Array.from(document.getElementsByClassName('filters') as HTMLCollectionOf<HTMLDivElement>).forEach(element =>{
+        element.style.cssText = "";
+      });
     }
   }
 
   // Filter titles based on selected filters
-  function applyFilter(event){
+  function applyFilter(event: React.ChangeEvent<HTMLInputElement>){
     const value = event.target.value;
     if(event.target.checked){
       filtersArr.platforms.push(value);
@@ -266,23 +292,31 @@ useEffect(()=>{
   );
 }
 
-function Year({appendTitles, titles}){
+function Year({appendTitles, titles}: FilterProps){
   // Variables
-  const filter = useRef(null);
-  const filterBg = useRef(null);
-  const [year, setYear] = useState([]);
+  const filter = useRef<HTMLUListElement | null>(null);
+  const filterBg = useRef<HTMLDivElement | null>(null);
+  const [year, setYear] = useState<string[]>([]);
 
   function showFilter(){
     if(mainPageOptions.isSelectionOpen === false){
       mainPageOptions.isSelectionOpen = true;
-      filter.current.classList.remove('hidden');
-      filterBg.current.style.background = "rgb(0, 6, 12)";
-      filterBg.current.style.border = "2px solid rgba(107, 107, 107, 1)";
+      filter.current!.classList.remove('hidden');
+      filterBg.current!.style.border = "2px solid rgba(107, 107, 107, 1)";
+    }
+    else{
+      mainPageOptions.isSelectionOpen = false;
+      Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
+        element.classList.add('hidden');
+      });
+      Array.from(document.getElementsByClassName('filters') as HTMLCollectionOf<HTMLDivElement>).forEach(element =>{
+        element.style.cssText = "";
+      });
     }
   }
 
   // Apply the selected filter(s)
-  function applyFilter(event){
+  function applyFilter(event: React.ChangeEvent<HTMLInputElement>){
     const value = event.target.value;
     if(event.target.checked){
       filtersArr.year.push(value);
@@ -339,18 +373,18 @@ useEffect(()=>{
 }
 
 function FilterOverlay(){
-  const filterOverlay = useRef(null);
+  const filterOverlay = useRef<HTMLDivElement | null>(null);
 
   function closeFilters(){
     if(mainPageOptions.isSelectionOpen){
-      Array.from(document.getElementsByClassName('custom-selections')).forEach(element =>{
+      Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
         element.classList.add('hidden');
       });
-      Array.from(document.getElementsByClassName('filters')).forEach(element =>{
-        element.style.cssText = null;
+      Array.from(document.getElementsByClassName('filters') as HTMLCollectionOf<HTMLDivElement>).forEach(element =>{
+        element.style.cssText = "";
         
       })
-      filterOverlay.current.classList.add('hidden');
+      filterOverlay.current!.classList.add('hidden');
       mainPageOptions.isSelectionOpen = false;
     }
   }
@@ -362,22 +396,31 @@ function FilterOverlay(){
   ); 
 }
 
-function Publishers({appendTitles, titles}){
-  const [publishers, setPublishers] = useState([]);
-  const filter = useRef(null);
-  const filterBg = useRef(null);
+function Publishers({appendTitles, titles}: FilterProps){
+  const [publishers, setPublishers] = useState<string[]>([]);
+  const filter = useRef<HTMLUListElement | null>(null);
+  const filterBg = useRef<HTMLDivElement | null>(null);
 
   function showFilter(){
     if(mainPageOptions.isSelectionOpen === false){
       mainPageOptions.isSelectionOpen = true;
-      filter.current.classList.remove('hidden');
-      filterBg.current.style.background = "rgb(0, 6, 12)";
-      filterBg.current.style.border = "2px solid rgba(107, 107, 107, 1)";
+      filter.current!.classList.remove('hidden');
+      filterBg.current!.style.background = "rgb(0, 6, 12)";
+      filterBg.current!.style.border = "2px solid rgba(107, 107, 107, 1)";
+    }
+    else{
+      mainPageOptions.isSelectionOpen = false;
+      Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
+        element.classList.add('hidden');
+      });
+      Array.from(document.getElementsByClassName('filters') as HTMLCollectionOf<HTMLDivElement>).forEach(element =>{
+        element.style.cssText = "";
+      });
     }
   }
 
   // Apply selected filter(s)
-  function applyFilter(event){
+  function applyFilter(event: React.ChangeEvent<HTMLInputElement>){
     const value = event.target.value;
     if(event.target.checked){
           filtersArr.publishers.push(value);
@@ -400,7 +443,7 @@ function Publishers({appendTitles, titles}){
     // Show filters based on retrieved titles from database
     function setRetrievedPublishers(){
       const titleArr = mainPageOptions.foundTitles;
-      const allPublishers = [];
+      const allPublishers: string[] = [];
       if(titleArr !== null && titleArr.length > 0){
         for(let i = 0; i < titleArr.length; i++){
           if(!allPublishers.includes(titleArr[i].publisher)){
@@ -441,30 +484,45 @@ function Publishers({appendTitles, titles}){
 // Search Page
 function App(){
   // Variables
-  const [filterOverlay, setfilterOverlay] = useState(null);
-  const [searchedTitles, setSearchedTitles] = useState([]);
+  const [filterOverlay, setfilterOverlay] = useState<JSX.Element | null>(null);
+  const [searchedTitles, setSearchedTitles] = useState([{tags: [""],
+  platforms: [""],
+  releaseDate: "",
+  publisher: "",
+  imgURL: "",
+  _id: "",
+  title: "",}]);
 
   // Global function, checks if a filter is open and opens the filter if so.
   function openFilterOverlay(){
     if(mainPageOptions.isSelectionOpen){
-      setfilterOverlay(<FilterOverlay />);
+      setfilterOverlay(prev => prev = <FilterOverlay />);
+      document.querySelector('body')!.style.overflow = "hidden";
     }
     else{
-      setfilterOverlay(null);
+      setfilterOverlay(prev => prev = null);
+      document.querySelector('body')!.style.cssText = "";
     }  
   }
 
   // Append the titles and/or filtered titles to the page.
   function appendSearchedTitles(){
     const titlesArr = mainPageOptions.foundTitles;
-    const titles = [];
+    const titles: {
+      tags: string[],
+      platforms: string[],
+      releaseDate: string,
+      publisher: string,
+      imgURL: string,
+      _id: string,
+      title: string,}[] = [];
 
     // Filter the retrieved titles from database based on the selected filters.
     // *Declare counters to compare with the length of the arrays of "filtersArr" (look at imports).*
     for(let j = 0; j < titlesArr.length; j++){
       let containsYear = 0;
       let containsGenre = 0;
-      let containsPlatform = 0;
+      let containsPlatform = 0; 
       let containsPublisher = 0;
 
       // *Update counters*
@@ -510,7 +568,7 @@ function App(){
                 titles.push(titlesArr[j]);
       } 
   }
-  setSearchedTitles(titles); // *Change page state (Titles)* 
+  setSearchedTitles(prev => prev = titles); // *Change page state (Titles)* 
 } 
 
   // Get titles based on URL and append to page
@@ -519,7 +577,7 @@ function App(){
     .then(res => res.json())
     .then(foundItems=>{
       mainPageOptions.foundTitles = foundItems;
-      setSearchedTitles(mainPageOptions.foundTitles);
+      setSearchedTitles(prev => prev = mainPageOptions.foundTitles);
     })
     .catch(err=>{
       console.log(err);
@@ -527,8 +585,8 @@ function App(){
   }, []);
  
   return (
-    <main id="search-page-bg">
-      <div id="search-page" onClick={openFilterOverlay}>
+    <main id="search-page-bg" onClick={openFilterOverlay}>
+      <div id="search-page">
         <Header item={<SearchBar appendTitles={appendSearchedTitles} />}/>
         <div id="game-filters-container">
           <Year appendTitles={appendSearchedTitles} titles={searchedTitles}/>
@@ -536,19 +594,21 @@ function App(){
           <Platforms appendTitles={appendSearchedTitles} titles={searchedTitles}/>
           <Publishers appendTitles={appendSearchedTitles} titles={searchedTitles}/>
         </div>
-        <section id="searched-titles">
-          {searchedTitles.map(game=>
-            <div key={game._id} className="searched-title-container">
-              <Link className='searched-title-image-container' to={`/info?title=${game._id}`}>
-                <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
-              </Link>
-              <div className='searched-title-title-container'>
-              < p className="searched-title-title">{game.title}</p>
-              </div>
-            </div>)}
+        <section id="searched-titles-section">
+          <div id="searched-titles">
+            {searchedTitles.map(game=>
+              <div key={game._id} className="searched-title-container">
+                <Link className='searched-title-image-container' to={`/info?title=${game._id}`}>
+                  <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
+                </Link>
+                <div className='searched-title-title-container'>
+                < p className="searched-title-title">{game.title}</p>
+                </div>
+              </div>)}
+          </div>
         </section>
-        {filterOverlay}
       </div>
+      {filterOverlay}
     </main>
   );
 }
