@@ -16,11 +16,6 @@ export const mainPageOptions = {
   }],
 } 
 
-
-
-
-
-
 export const filtersArr: {[key: string]: string[],
   year: string[],
   genre: string[],

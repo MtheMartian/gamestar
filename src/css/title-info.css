@@ -105,6 +105,8 @@
   flex-direction: column;
   gap: 3rem;
   padding-bottom: 2rem;
+  position: relative;
+  border: 1px solid blue;
 }
 
 .videos-title{
@@ -150,3 +152,62 @@
   scroll-behavior: smooth;
   scroll-snap-type: x proximity;
 }
+
+/* ------- Discuss ------- */
+#discuss-container{
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#discuss-wrapper{
+  border-radius: 10px;
+  box-shadow: 1px 1px 10px rgba(28, 65, 168, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 90%;
+}
+
+#discuss{
+  height: 100%;
+  border: 1px solid red;
+  width: 100%;
+}
+
+#discuss-post-message{
+  width: 100%;
+  height: 7rem;
+  border: 1px solid green;
+}
+
+#discuss-message{
+  background: grey;
+  width: 80%;
+}
+
+#discuss-name{
+  background: rgba(28, 65, 168, 0.9);
+  width: 50%;
+}
+
+#discuss-save-name-wrapper{
+  background: lightblue;
+}
+
+#discuss-save-name{
+  background: lightblue;
+}
+
+#discuss-submit{
+  background: lightsalmon;
+}
+
+
