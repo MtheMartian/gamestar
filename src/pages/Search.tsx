@@ -118,7 +118,6 @@ function SearchBar({appendTitles}: SearchbarProps){
 }
 
 // All Filters and filter overlay.
-
 type FilterProps = {
   appendTitles: Function,
   titles: object[],
@@ -594,8 +593,7 @@ function App(){
           <Platforms appendTitles={appendSearchedTitles} titles={searchedTitles}/>
           <Publishers appendTitles={appendSearchedTitles} titles={searchedTitles}/>
         </div>
-        <section id="searched-titles-section">
-          <div id="searched-titles">
+          <section id="searched-titles">
             {searchedTitles.map(game=>
               <div key={game._id} className="searched-title-container">
                 <Link className='searched-title-image-container' to={`/info?title=${game._id}`}>
@@ -605,8 +603,7 @@ function App(){
                 < p className="searched-title-title">{game.title}</p>
                 </div>
               </div>)}
-          </div>
-        </section>
+          </section>
       </div>
       {filterOverlay}
     </main>

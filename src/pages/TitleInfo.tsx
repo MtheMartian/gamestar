@@ -80,6 +80,57 @@ function Card(){
   );
 }
 
+function Discuss(){
+  const nameValue = useRef<HTMLInputElement | null>(null);
+  const saveCheckBox = useRef<HTMLInputElement | null>(null);
+
+  const [_name, set_Name] = useState<any>("");
+
+  function saveName(){
+    if(nameValue.current!.value === "" || nameValue.current!.value === " "){
+      nameValue.current!.style.border = "2px solid red";
+      nameValue.current!.placeholder = "Please enter a valid name";
+      saveCheckBox.current!.checked = false;
+    }
+    else{
+      if(!localStorage.getItem("name") && (nameValue.current!.value !== "" && nameValue.current!.value !== " ")){
+        localStorage.setItem("name", nameValue.current!.value);
+        nameValue.current!.style.cssText = "";
+      }
+      else if(localStorage.getItem("name")){
+        localStorage.clear();
+      }
+    }
+  }
+
+  useEffect(()=>{
+    if(localStorage.getItem("name")){
+      set_Name(localStorage.getItem("name"));
+      saveCheckBox.current!.checked = true;
+    }
+  }, [])
+
+  return(
+    <section id="discuss-container">
+      <section id="discuss-wrapper">
+        <div id="discuss">
+
+        </div>
+        <form id="discuss-post-message">
+          <textarea form="discuss-post-message" placeholder="Post Comment, Review..." id="discuss-message"/>
+          <input type="text" placeholder="Name (Anonymous by default)" id="discuss-name" ref={nameValue}
+            defaultValue={_name} />
+          <label id="discuss-save-name-wrapper">
+            Save Name
+            <input type="checkbox" id="discuss-save-name" onChange={saveName} ref={saveCheckBox}/>
+          </label>
+          <button type="submit" id="discuss-submit">Send</button>
+        </form>
+      </section>
+    </section>
+  );
+}
+
 function Videos(){
   const [title, setTitle] = useState({
     videoURL: "",
@@ -109,12 +160,11 @@ function Videos(){
 
   return(
     <section id="videos-container">
-      {title !== null ? 
       <iframe src={`${title.videoURL}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="videos-title" title="Trailer" allow="fullscreen"/> 
-      : null}
-      {title !== null ? title.gameplayVid !== "" ?
+      {title.gameplayVid !== "" ?
       <iframe src={`${title.gameplayVid}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.gameplayVid.slice(30, title.gameplayVid.length)}&loop=1`} className="videos-title" title="GamePlay" allow="fullscreen"/> 
-      : null : null}
+      : null}
+      <Discuss />
     </section>
   )
 }

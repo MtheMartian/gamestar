@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
+  width: 80%;
   min-height: calc(100vh - 80px);
   margin-top: 80px;
 }
@@ -30,7 +30,6 @@
   position: fixed;
   top: 80px;
   z-index: 7;
-  background: rgba(0, 0, 0, 0.8);
 }
 
 #year-selection-container, #tags-selection-container, 
@@ -102,6 +101,7 @@
   border-radius: 20px;
   background: rgb(0, 6, 12);
   z-index: 8;
+  transition: 150ms width;
 }
 
 .custom-selections li{
@@ -154,19 +154,24 @@ input[type="checkbox"]:checked::before {
   transform: scale(1);
 }
 
-/* ------- Searched Titles ------- */
-#searched-titles-section{
-  width: 100%;
-  margin-top: 160px;
+/**Mobile media queries**/
+@media screen and (max-width: 620px){
+  .custom-selections{
+    width: 150%;
+  }
 }
 
+/* ------- Searched Titles ------- */
 #searched-titles{
+  margin-top: 160px;
   width: 100%;
+  height: 40rem;
   padding: 25px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(20rem ,1fr));
-  place-items: center;
+  place-items: start;
   overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .searched-title-container{
