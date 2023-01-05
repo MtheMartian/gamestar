@@ -81,13 +81,16 @@ function Card(){
 }
 
 function Discuss(){
+  // Variables
   const nameValue = useRef<HTMLInputElement | null>(null);
   const saveCheckBox = useRef<HTMLInputElement | null>(null);
 
   const [_name, set_Name] = useState<any>("");
 
+  // Store the the user name input 
   function saveName(){
-    if(nameValue.current!.value === "" || nameValue.current!.value === " "){
+    if(nameValue.current!.value === "" || nameValue.current!.value[0] === " "){
+      nameValue.current!.value = "";
       nameValue.current!.style.border = "2px solid red";
       nameValue.current!.placeholder = "Please enter a valid name";
       saveCheckBox.current!.checked = false;
@@ -96,10 +99,20 @@ function Discuss(){
       if(!localStorage.getItem("name") && (nameValue.current!.value !== "" && nameValue.current!.value !== " ")){
         localStorage.setItem("name", nameValue.current!.value);
         nameValue.current!.style.cssText = "";
+        nameValue.current!.style.pointerEvents = "none";
       }
       else if(localStorage.getItem("name")){
         localStorage.clear();
+        nameValue.current!.value = "";
+        nameValue.current!.style.cssText = "";
       }
+    }
+  }
+
+  // Clear the input text for name if it was invalid
+  function clearNameValue(){
+    if(nameValue.current!.value === "Please enter a valid name" && nameValue.current!.style.border === "2px solid red"){
+      nameValue.current!.value = "";
     }
   }
 
@@ -107,6 +120,7 @@ function Discuss(){
     if(localStorage.getItem("name")){
       set_Name(localStorage.getItem("name"));
       saveCheckBox.current!.checked = true;
+      nameValue.current!.style.pointerEvents = "none";
     }
   }, [])
 
@@ -119,7 +133,7 @@ function Discuss(){
         <form id="discuss-post-message">
           <textarea form="discuss-post-message" placeholder="Post Comment, Review..." id="discuss-message"/>
           <input type="text" placeholder="Name (Anonymous by default)" id="discuss-name" ref={nameValue}
-            defaultValue={_name} />
+            defaultValue={_name}  onClick={clearNameValue} />
           <label id="discuss-save-name-wrapper">
             Save Name
             <input type="checkbox" id="discuss-save-name" onChange={saveName} ref={saveCheckBox}/>
