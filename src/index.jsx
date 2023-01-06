@@ -5,6 +5,7 @@ import Search from './pages/Search';
 import NoPage from './pages/NoPage';
 import HomePage from './pages/Home';
 import Info from './pages/TitleInfo';
+import SignUp from './pages/SignUp';
 import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
@@ -26,6 +27,11 @@ const router = createBrowserRouter([
   {
     path: "/info",
     element: <Info />,
+    errorElement: <NoPage />
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
     errorElement: <NoPage />
   }
 ])
