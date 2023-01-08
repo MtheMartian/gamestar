@@ -2,10 +2,12 @@ import React from 'react';
 
 function SignIn(){
   return(
-    <form>
-      <input type="email" placeholder="Email"/>
-      <input type="password" placeholder="Passowrd"/>
-      <button>Sign In</button>
-    </form>
+    <div className="users-page-bg">
+      <form className="users-form">
+        <input className="users-input" type="email" placeholder="Email"/>
+        <input className="users-input" type="password" placeholder="Passowrd"/>
+        <button className="users-button">Sign In</button>
+      </form>
+    </div>
   )
 }
