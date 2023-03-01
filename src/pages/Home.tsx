@@ -220,7 +220,7 @@ function Carousel(){
 
   // Get titles for carousel (1 to 3 months > current date) and set carousel timer
   useEffect(()=>{
-    fetch("/home/carousels")
+    fetch("/api/games/carousel")
     .then(response => response.json())
     .then(data =>{
       setTitlesCarousel(data);
@@ -364,7 +364,7 @@ function Categories(){
 
   // Get all titles
   useEffect(()=>{
-    fetch("/admintools.gamesportal/gettitles")
+    fetch("/api/games")
     .then(response => response.json())
     .then(data =>{
       setTitles(prev => prev = data);
