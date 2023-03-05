@@ -8,6 +8,7 @@ import Header from '../general-components/header';
 
 
 // ITERATE THROUGH YOUR STUFF, DON'T HARD CODE!!! E.g. Tags and Platforms
+let entryFromUrl: string = "";
 
 // Clear Filters Arrays
 function clearFiltersArr(){
@@ -69,6 +70,7 @@ function SearchBar({appendTitles}: SearchbarProps){
       }
     }
     url = window.location.href.slice(index, window.location.href.length);
+    entryFromUrl = window.location.href.slice(index, window.location.href.length);
   }
 
   // Set user inputs into the search bar and url (useful for history)
@@ -87,7 +89,8 @@ function SearchBar({appendTitles}: SearchbarProps){
   // Search for titles based on search bar value
   async function searchForTitle(){
     try{
-      const response = await fetch(`/search?entry=${searchValue.current!.value.toLowerCase()}`,{
+      const searchInput: string = searchValue.current!.value.toLowerCase();
+      const response = await fetch(`/api/games/search?entry=${searchInput.length === 0 || searchInput[0] === " " ? "{Empty}" : searchInput}`,{
         method: 'get'
       });
       await response.json()
@@ -489,7 +492,7 @@ function App(){
   releaseDate: "",
   publisher: "",
   imgURL: "",
-  _id: "",
+  id: "",
   title: "",}]);
 
   // Global function, checks if a filter is open and opens the filter if so.
@@ -513,7 +516,7 @@ function App(){
       releaseDate: string,
       publisher: string,
       imgURL: string,
-      _id: string,
+      id: string,
       title: string,}[] = [];
 
     // Filter the retrieved titles from database based on the selected filters.
@@ -572,7 +575,7 @@ function App(){
 
   // Get titles based on URL and append to page
   useEffect(()=>{
-    fetch(window.location.href)
+    fetch(entryFromUrl !== "" ? `/api/games/search?entry=${entryFromUrl}` : "/api/games/search?entry={Empty}")
     .then(res => res.json())
     .then(foundItems=>{
       mainPageOptions.foundTitles = foundItems;
@@ -582,6 +585,10 @@ function App(){
       console.log(err);
     });
   }, []);
+
+  function noBodyScroll(){
+    document.querySelector("body")!.style.overflow = "hidden";
+  }
  
   return (
     <main id="search-page-bg" onClick={openFilterOverlay}>
@@ -593,10 +600,10 @@ function App(){
           <Platforms appendTitles={appendSearchedTitles} titles={searchedTitles}/>
           <Publishers appendTitles={appendSearchedTitles} titles={searchedTitles}/>
         </div>
-          <section id="searched-titles">
+          <section id="searched-titles" onScroll={noBodyScroll}>
             {searchedTitles.map(game=>
-              <div key={game._id} className="searched-title-container">
-                <Link className='searched-title-image-container' to={`/info?title=${game._id}`}>
+              <div key={game.id} className="searched-title-container">
+                <Link className='searched-title-image-container' to={`/info?title=${game.id}`}>
                   <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
                 </Link>
                 <div className='searched-title-title-container'>

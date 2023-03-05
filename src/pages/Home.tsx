@@ -12,9 +12,12 @@ import Header from '../general-components/header';
 
 function SearchRedirect(){
   return(
-    <Link to="/search">
-      <img alt="search"></img>
-    </Link>
+    <a href="/search" id="search-section-wrapper">
+      <span>Search</span>
+      <span className="material-symbols-outlined" id="search-icon">
+        search
+      </span>
+    </a>
   );
 }
 
@@ -97,7 +100,7 @@ function Carousel(){
     platforms: [""],
     imgURL: "",
     title: "",
-    _id: "",
+    id: "",
     summary:"",
     videoURL: "",
   }]);
@@ -248,9 +251,9 @@ function Carousel(){
   return(
     <div id="home-page-carousel" ref={carousel}>
       {titlesCarousel.map((title, index) =>
-        <div className="carousel-title-wrapper" key={title._id} >
+        <div className="carousel-title-wrapper" key={title.id} >
           <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
-          <Link className="carousel-title-image-wrapper" title={title.title} to={`/info?title=${title._id}`}>
+          <Link className="carousel-title-image-wrapper" title={title.title} to={`/info?title=${title.id}`}>
             <img alt="title" src={title.imgURL} className="carousel-title-image" />
             <div className="carousel-title-platforms">
               {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? <img src={xbox} alt="Xbox"/> : null}
@@ -335,7 +338,7 @@ function Categories(){
   const genres = useRef<[string]>([""]);
   const [titles, setTitles] = useState([{
     tags: [""],
-    _id: "",
+    id: "",
     title: "",
     imgURL: "",
   }]);
@@ -374,7 +377,7 @@ function Categories(){
     })
   }, [])
 
-  // Hide category navigations if element can't be scrolled.
+  // Hide category navigations (< >) if container can't be scrolled.
   useEffect(()=>{
     const allCategories = Array.from(document.getElementsByClassName("home-page-genre") as HTMLCollectionOf<HTMLDivElement>);
     allCategories.forEach(element =>{
@@ -392,7 +395,7 @@ function Categories(){
           <div className="home-page-genre" onTouchStart={ifTouch}>
             {titles.map(title =>
             title.tags.includes(genre) ? 
-            <Link key={title._id} className="genre-titles" title={title.title} to={`/info?title=${title._id}`}>
+            <Link key={title.id} className="genre-titles" title={title.title} to={`/info?title=${title.id}`}>
               <img className="genre-title-image" src={title.imgURL} alt="Title" />
             </Link> : null)}
           </div>
