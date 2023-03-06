@@ -1,5 +1,6 @@
 import React from 'react';
 import {useEffect, useState, useRef} from 'react';
+import {Link} from 'react-router-dom';
 import Header from '../general-components/header';
 import '../css/general.css';
 import '../css/title-info.css';
@@ -12,9 +13,12 @@ import {CategoryNavigation} from '../pages/Home';
 
 function SearchRedirect(){
   return(
-    <a href="/search">
-      <img alt="search"></img>
-    </a>
+    <Link to="/search" id="search-section-wrapper">
+      <span>Search</span>
+      <span className="material-symbols-outlined" id="search-icon">
+        search
+      </span>
+    </Link>
   );
 }
 
@@ -47,7 +51,7 @@ function Card(){
       }
     }
 
-    fetch(`/api/info?title=${url.slice(index, url.length)}`)
+    fetch(`/api/games/info?title=${url.slice(index, url.length)}`)
     .then(response => response.json())
     .then(data =>{
       setTitle(prev => prev = data);
@@ -162,7 +166,7 @@ function Videos(){
       }
     }
 
-    fetch(`/api/info?title=${url.slice(index, url.length)}`)
+    fetch(`/api/games/info?title=${url.slice(index, url.length)}`)
     .then(response => response.json())
     .then(data =>{
       setTitle(prev => prev = data);
@@ -185,7 +189,7 @@ function Videos(){
 
 function SimilarTitles(){
   const [titles, setTitles] = useState([{
-    _id: "",
+    id: "",
     imgURL: "",
     title: "",
   }]);
@@ -209,7 +213,7 @@ function SimilarTitles(){
       }
     }
 
-    fetch(`/api/info/similar/${url.slice(index, url.length)}`)
+    fetch(`/api/games/similar?gameId=${url.slice(index, url.length)}`)
     .then(response => response.json())
     .then(data =>{
       setTitles(prev => prev = data);
@@ -233,7 +237,7 @@ function SimilarTitles(){
       <h2 id="similar-section-title">Similar Games</h2>
       <div id="similar-titles-wrapper" onTouchStart={ifTouch} ref={similarTitles}>
         {titles.map(similarTitle=>
-          <a key={similarTitle._id} className="genre-titles" title={similarTitle.title} href={`/info?title=${similarTitle._id}`}>
+          <a key={similarTitle.id} className="genre-titles" title={similarTitle.title} href={`/info?title=${similarTitle.id}`}>
             <img className="genre-title-image" src={similarTitle.imgURL} alt="Title" />
           </a>
         )}

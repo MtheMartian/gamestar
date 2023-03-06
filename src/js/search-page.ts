@@ -11,7 +11,7 @@ export const mainPageOptions = {
     releaseDate: "",
     publisher: "",
     imgURL: "",
-    _id: "",
+    id: "",
     title: "",
   }],
 } 

@@ -89,6 +89,32 @@ body{
   justify-content: flex-start;
   gap: 20px;
   width: 50%;
+  height: 100%;
+  padding-left: 10px;
+}
+
+#logo{
+  width: 55px;
+}
+
+#search-icon{
+  font-size: 20px;
+}
+
+#search-section-wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: 250ms opacity, 250ms background;
+  height: 100%;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+#search-section-wrapper:hover{
+  opacity: 0.8;
+  background:rgba(255, 255, 255, 0.1);
 }
 
 #logo-menu{
