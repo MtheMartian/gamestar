@@ -153,7 +153,7 @@
   scroll-snap-type: x proximity;
 }
 
-/* ------- Discuss ------- */
+/* ------- Discuss (Comments, reviews) ------- */
 #discuss-container{
   position: absolute;
   right: 0;
@@ -180,16 +180,19 @@
   height: 100%;
   border: 1px solid red;
   width: 100%;
+  background: rgb(54, 54, 54);
 }
 
 #discuss-post-message{
   width: 100%;
   height: 7rem;
   border: 1px solid green;
+  position: relative;
+  background: rgb(37, 37, 37);
 }
 
 #discuss-message{
-  background: grey;
+  background: rgb(204, 204, 204);
   width: 80%;
 }
 
@@ -199,16 +202,28 @@
 }
 
 #discuss-save-name-wrapper{
-  background: lightblue;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
 }
 
 #discuss-save-name{
-  background: lightblue;
+  border: 2px solid white;
+}
+
+#name-section{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 #discuss-submit{
-  background: lightsalmon;
-  
+  background: rgb(28, 65, 168);
+  position: absolute;
+  right: 0;
+  bottom: 0;
 }
 
 

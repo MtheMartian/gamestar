@@ -107,7 +107,6 @@ function Discuss(){
       }
       else if(localStorage.getItem("name")){
         localStorage.clear();
-        nameValue.current!.value = "";
         nameValue.current!.style.cssText = "";
       }
     }
@@ -136,13 +135,15 @@ function Discuss(){
         </div>
         <form id="discuss-post-message">
           <textarea form="discuss-post-message" placeholder="Post Comment, Review..." id="discuss-message"/>
-          <input type="text" placeholder="Name (Anonymous by default)" id="discuss-name" ref={nameValue}
-            defaultValue={_name}  onClick={clearNameValue} />
-          <label id="discuss-save-name-wrapper">
-            Save Name
-            <input type="checkbox" id="discuss-save-name" onChange={saveName} ref={saveCheckBox}/>
-          </label>
-          <button type="submit" id="discuss-submit">Send</button>
+          <div id="name-section">
+            <input type="text" placeholder="Name (Anonymous by default)" id="discuss-name" ref={nameValue}
+              defaultValue={_name}  onClick={clearNameValue} />
+            <label id="discuss-save-name-wrapper">
+              Save
+              <input type="checkbox" id="discuss-save-name" onChange={saveName} ref={saveCheckBox}/>
+            </label>
+          </div>
+          <button type="submit" id="discuss-submit">Post</button>
         </form>
       </section>
     </section>
