@@ -136,7 +136,7 @@ function Discuss(){
         <form id="discuss-post-message">
           <textarea form="discuss-post-message" placeholder="Post Comment, Review..." id="discuss-message"/>
           <div id="name-section">
-            <input type="text" placeholder="Name (Anonymous by default)" id="discuss-name" ref={nameValue}
+            <input type="text" placeholder="Display Name" id="discuss-name" ref={nameValue}
               defaultValue={_name}  onClick={clearNameValue} />
             <label id="discuss-save-name-wrapper">
               Save
@@ -178,11 +178,13 @@ function Videos(){
   }, [])
 
   return(
-    <section id="videos-container">
+    <section id="title-info-reviews-videos">
+      <div id="videos-container">
       <iframe src={`${title.videoURL}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="videos-title" title="Trailer" allow="fullscreen"/> 
       {title.gameplayVid !== "" ?
       <iframe src={`${title.gameplayVid}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.gameplayVid.slice(30, title.gameplayVid.length)}&loop=1`} className="videos-title" title="GamePlay" allow="fullscreen"/> 
       : null}
+      </div>
       <Discuss />
     </section>
   )
