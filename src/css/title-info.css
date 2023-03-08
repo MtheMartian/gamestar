@@ -96,24 +96,32 @@
   font-size: calc(0.5vw + 0.7rem);
 }
 
+/* ------- Reviews & Videos ------- */
+#title-info-reviews-videos{
+  width: 95%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid blue;
+  padding: 25px;
+}
+
 /* ------- Videos -------*/
 #videos-container{
-  width: 95%;
+  width: 50%;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   flex-direction: column;
   gap: 3rem;
-  padding-bottom: 2rem;
   position: relative;
-  border: 1px solid blue;
 }
 
 .videos-title{
   border: none;
   border-radius: 10px;
   box-shadow: 1px 1px 10px rgba(28, 65, 168, 0.8);
-  width: 40%;
+  width: 90%;
   height: 600px;
 }
 
@@ -155,50 +163,63 @@
 
 /* ------- Discuss (Comments, reviews) ------- */
 #discuss-container{
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
   width: 50%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  height: 1200px;
 }
 
 #discuss-wrapper{
-  border-radius: 10px;
-  box-shadow: 1px 1px 10px rgba(28, 65, 168, 0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 30px;
   width: 100%;
   height: 90%;
 }
 
 #discuss{
-  height: 100%;
+  height: 50rem;
   border: 1px solid red;
   width: 100%;
   background: rgb(54, 54, 54);
 }
 
 #discuss-post-message{
-  width: 100%;
+  width: 75%;
   height: 7rem;
-  border: 1px solid green;
   position: relative;
   background: rgb(37, 37, 37);
+  border-radius: 10px;
+}
+
+#discuss-message, #discuss-name{
+  border: 1px solid rgba(28, 65, 168, 0.5);
+  letter-spacing: 1px;
+  color: white;
+  font-weight: 500;
+  transition: 150ms box-shadow;
 }
 
 #discuss-message{
-  background: rgb(204, 204, 204);
-  width: 80%;
+  background: rgb(43, 43, 43);
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+#discuss-message:hover, #discuss-name:hover{
+  box-shadow: 1px 1px 10px rgba(28, 65, 168, 1);
 }
 
 #discuss-name{
-  background: rgba(28, 65, 168, 0.9);
-  width: 50%;
+  background: rgba(43, 43, 43, 1);
+  width: 55%;
+  padding: 5px; 
+  border-radius: 5px;
 }
 
 #discuss-save-name-wrapper{
@@ -207,23 +228,45 @@
   align-items: center;
   justify-content: flex-start;
   gap: 5px;
+  font-weight: 500;
 }
 
 #discuss-save-name{
   border: 2px solid white;
 }
 
+#name-section, #discuss-submit{
+  position: absolute;
+  bottom: -40px;
+}
+
 #name-section{
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  left: 0;
+  width: 70%;
+  gap: 20px;
 }
 
 #discuss-submit{
   background: rgb(28, 65, 168);
-  position: absolute;
   right: 0;
-  bottom: 0;
+  color: white;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 7px;
+  width: 15%;
+  text-align: center;
+  transition: 150ms opacity, 150ms scale;
+}
+
+#discuss-submit:hover{
+  opacity: 0.8;
+}
+
+#discuss-submit:active{
+  scale: 0.9;
 }
 
 
