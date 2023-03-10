@@ -11,6 +11,8 @@ import pc from '../images/pc.png';
 import nintentdo from '../images/switch.png';
 import {CategoryNavigation} from '../pages/Home';
 
+let gameId: string = "";
+
 function SearchRedirect(){
   return(
     <Link to="/search" id="search-section-wrapper">
@@ -51,6 +53,8 @@ function Card(){
       }
     }
 
+    gameId = url.slice(index, url.length);
+
     fetch(`/api/games/info?title=${url.slice(index, url.length)}`)
     .then(response => response.json())
     .then(data =>{
@@ -88,7 +92,18 @@ function Discuss(){
   // Variables
   const nameValue = useRef<HTMLInputElement | null>(null);
   const saveCheckBox = useRef<HTMLInputElement | null>(null);
+  const weGotReviews = useRef<boolean | null>(null);
 
+  const reviewDate = useRef<string | null>(null);
+
+  const review = useRef<HTMLTextAreaElement | null>(null);
+
+  const [retrievedReviews, setRetrievedReviews] = useState<[{
+    displayName: string,
+    gameReview: string,
+    whenPosted: string
+  }]>([{displayName: "", gameReview: "", whenPosted: ""}]);
+ ;
   const [_name, set_Name] = useState<any>("");
 
   // Store the the user name input 
@@ -120,21 +135,62 @@ function Discuss(){
   }
 
   useEffect(()=>{
+    // Set Display Name if localStorage not empty
     if(localStorage.getItem("name")){
       set_Name(localStorage.getItem("name"));
       saveCheckBox.current!.checked = true;
       nameValue.current!.style.pointerEvents = "none";
     }
+
+    // Retrieve Reviews
+    fetch(`/api/reviews/${gameId}`)
+    .then(response => response.json())
+    .then(data =>{
+      if(data && data.length > 0){
+        weGotReviews.current = true;
+        setRetrievedReviews(prev => prev = data);
+      }
+      console.log(data);
+    })
+    .catch(err =>{
+      console.log(err);
+    });     
   }, [])
+
+  async function postReview(e:React.MouseEvent){
+    e.preventDefault();
+    if(review.current!.value !== "" || review.current!.value[0] !== " "){
+      fetch(`/api/reviews/postreview/${gameId}`,{
+        method: "post",
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify({
+          "GameId": gameId,
+          "GameReview": review.current!.value,
+          "DisplayName": nameValue.current!.value
+        })
+      })
+      review.current!.value = "";
+      review.current!.style.cssText = "";
+    }
+    else{
+      review.current!.style.border = "3px solid red";
+    }
+  }
 
   return(
     <section id="discuss-container">
       <section id="discuss-wrapper">
         <div id="discuss">
-
+          {weGotReviews.current ? retrievedReviews.map((critique, index) =>
+          <div className="reviews" key={index}>
+            <span>{critique.displayName}</span>
+            <span>{reviewDate.current = new Date(critique.whenPosted).toDateString().slice(3)}</span>
+            <p>{critique.gameReview}</p>
+          </div>) : null}
         </div>
         <form id="discuss-post-message">
-          <textarea form="discuss-post-message" placeholder="Post Comment, Review..." id="discuss-message"/>
+          <textarea form="discuss-post-message" placeholder="Post Comment, Review..." id="discuss-message"
+            ref={review} />
           <div id="name-section">
             <input type="text" placeholder="Display Name" id="discuss-name" ref={nameValue}
               defaultValue={_name}  onClick={clearNameValue} />
@@ -143,7 +199,7 @@ function Discuss(){
               <input type="checkbox" id="discuss-save-name" onChange={saveName} ref={saveCheckBox}/>
             </label>
           </div>
-          <button type="submit" id="discuss-submit">Post</button>
+          <button id="discuss-submit" onClick={postReview}>Post</button>
         </form>
       </section>
     </section>
