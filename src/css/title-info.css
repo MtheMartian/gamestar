@@ -102,8 +102,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid blue;
   padding: 25px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 1px 1px 10px rgba(28, 65, 168, 0.8);
+  border-radius: 10px;
 }
 
 /* ------- Videos -------*/
@@ -168,6 +170,17 @@
   align-items: flex-end;
   justify-content: center;
   height: 1200px;
+  position: relative;
+}
+
+#discuss-title{
+  position: absolute;
+  top: 7rem;
+  text-align: center;
+  color: white;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: calc(1vw + 0.8rem);
 }
 
 #discuss-wrapper{
@@ -182,9 +195,60 @@
 
 #discuss{
   height: 50rem;
-  border: 1px solid red;
   width: 100%;
-  background: rgb(54, 54, 54);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+}
+
+.reviews{
+  width: 90%;
+  border-radius: 10px;
+  box-shadow: 1px 1px 10px rgba(28, 65, 168, 0.8);
+  background: rgba(255,255, 255, 0.1);
+  padding: 5px;
+  position: relative;
+  color: white;
+  letter-spacing: 1px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.review-display-name{
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.review-date-posted{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.review-review-wrapper{
+  width: 95%;
+  min-height: 5rem;
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-left: 1rem;
+  padding-top: 0.7rem;
+  padding-bottom: 7px;
+}
+
+.review-review{
+  width: 98%;
+  overflow-wrap: break-word;
 }
 
 #discuss-post-message{
