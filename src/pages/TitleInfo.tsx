@@ -92,7 +92,6 @@ function Discuss(){
   // Variables
   const nameValue = useRef<HTMLInputElement | null>(null);
   const saveCheckBox = useRef<HTMLInputElement | null>(null);
-  const weGotReviews = useRef<boolean | null>(null);
 
   const reviewDate = useRef<string | null>(null);
 
@@ -102,7 +101,7 @@ function Discuss(){
     displayName: string,
     gameReview: string,
     whenPosted: string
-  }]>([{displayName: "", gameReview: "", whenPosted: ""}]);
+  }] | null>([{displayName: "", gameReview: "", whenPosted: ""}]);
  ;
   const [_name, set_Name] = useState<any>("");
 
@@ -146,11 +145,12 @@ function Discuss(){
     fetch(`/api/reviews/${gameId}`)
     .then(response => response.json())
     .then(data =>{
-      if(data && data.length > 0){
-        weGotReviews.current = true;
-        setRetrievedReviews(prev => prev = data);
+      if(data.message === "Success"){
+        setRetrievedReviews(prev => prev = data.data);
       }
-      console.log(data);
+      else{
+        setRetrievedReviews(prev => prev = data.data);
+      }
     })
     .catch(err =>{
       console.log(err);
@@ -159,33 +159,39 @@ function Discuss(){
 
   async function postReview(e:React.MouseEvent){
     e.preventDefault();
-    if(review.current!.value !== "" || review.current!.value[0] !== " "){
-      fetch(`/api/reviews/postreview/${gameId}`,{
-        method: "post",
-        headers: {"Content-type": "application/json"},
-        body: JSON.stringify({
-          "GameId": gameId,
-          "GameReview": review.current!.value,
-          "DisplayName": nameValue.current!.value
-        })
+    const response = await fetch(`/api/reviews/postreview/${gameId}`,{
+      method: "post",
+      headers: {"Content-type": "application/json"},
+      body: JSON.stringify({
+        "GameId": gameId,
+        "GameReview": review.current!.value,
+        "DisplayName": nameValue.current!.value
       })
+    });
+    const data = await response.json();
+    if(data.message === "Success"){
       review.current!.value = "";
       review.current!.style.cssText = "";
+      setRetrievedReviews(prev => prev = data.data);
     }
-    else{
+    else if(data.message === "Failure"){
       review.current!.style.border = "3px solid red";
+      review.current!.style.boxShadow = "none";
     }
   }
 
   return(
     <section id="discuss-container">
+      <span id="discuss-title">Reviews</span>
       <section id="discuss-wrapper">
         <div id="discuss">
-          {weGotReviews.current ? retrievedReviews.map((critique, index) =>
+          {retrievedReviews ? retrievedReviews.map((critique, index) =>
           <div className="reviews" key={index}>
-            <span>{critique.displayName}</span>
-            <span>{reviewDate.current = new Date(critique.whenPosted).toDateString().slice(3)}</span>
-            <p>{critique.gameReview}</p>
+            <span className="review-display-name">{critique.displayName}</span>
+            <span className="review-date-posted">{reviewDate.current = new Date(critique.whenPosted).toDateString().slice(3)}</span>
+            <div className="review-review-wrapper">
+              <p className="review-review">{critique.gameReview}</p>
+            </div>
           </div>) : null}
         </div>
         <form id="discuss-post-message">
