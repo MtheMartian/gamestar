@@ -17,14 +17,7 @@
     <div id="root"></div>
     <script>
       (function(){
-        window.onload = function(event){
-          console.log(":)");
-        }
-      })();
-
-      (function(){
         window.onpageshow = function(event){
-          console.log(event);
           if(event.persisted){
             window.location.reload();
           }
