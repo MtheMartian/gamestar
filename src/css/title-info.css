@@ -96,6 +96,57 @@
   font-size: calc(0.5vw + 0.7rem);
 }
 
+/* Media Queries */
+@media screen and (max-width: 790px){
+  #card-container, #card{
+    flex-direction: column;
+  }
+  #card{
+    flex-direction: column;
+  }
+
+  .card-title-image, #card-title-summary-wrapper{
+    width: 100%;
+  }
+
+  #card-title-platforms a{
+    width: 10%;
+  }
+
+  #card-title-platforms{
+    flex-direction: row;
+  }
+}
+
+@media only screen and (max-width: 910px){
+  #card-title-release-date{
+    width: 45%;
+    right: 0;
+    text-align: end;
+    margin-right: 25px;
+  }
+}
+
+@media only screen and (max-width: 480px){
+  #card-title-platforms{
+    top: 0;
+    left: 0;
+    right: 0;
+    width: unset;
+    height: 40px;
+  }
+}
+
+@media only screen and (min-width: 480px) and (max-width: 790px){
+  #card-title-platforms{
+    top: 0;
+    left: 0;
+    right: 0;
+    width: unset;
+    height: 10%;
+  }
+}
+
 /* ------- Reviews & Videos ------- */
 #title-info-reviews-videos{
   width: 95%;
@@ -106,6 +157,13 @@
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow: 1px 1px 10px rgba(28, 65, 168, 0.8);
   border-radius: 10px;
+}
+
+/* Media Queries */
+@media only screen and (max-width: 790px){
+  #title-info-reviews-videos{
+    flex-direction: column;
+  }
 }
 
 /* ------- Videos -------*/
@@ -125,6 +183,17 @@
   box-shadow: 1px 1px 10px rgba(28, 65, 168, 0.8);
   width: 90%;
   height: 600px;
+}
+
+/* Media Queries */
+@media only screen and (max-width: 790px){
+  #videos-container, .videos-title{
+    width: 100%;
+  }
+  
+  .videos-title{
+    height: 300px;
+  }
 }
 
 /* ------- Similar Titles -------*/
@@ -331,6 +400,17 @@
 
 #discuss-submit:active{
   scale: 0.9;
+}
+
+/* Media Queries */
+@media only screen and (max-width: 790px){
+  #discuss-container, #discuss-post-message{
+    width: 100%;
+  }
+
+  #discuss-wrapper{
+    gap: 0;
+  }
 }
 
 
