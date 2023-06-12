@@ -5,8 +5,6 @@ import Search from './pages/Search';
 import NoPage from './pages/NoPage';
 import HomePage from './pages/Home';
 import Info from './pages/TitleInfo';
-import SignUp from './pages/SignUp';
-import SignIn from './pages/SignIn';
 import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
@@ -29,18 +27,7 @@ const router = createBrowserRouter([
     path: "/info",
     element: <Info />,
     errorElement: <NoPage />
-  },
-  {
-    path: "/signup",
-    element: <SignUp />,
-    errorElement: <NoPage />
-  },
-  {
-    path: "/signin",
-    element: <SignIn />,
-    errorElement: <NoPage />
   }
-
 ])
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

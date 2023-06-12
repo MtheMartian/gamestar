@@ -12,6 +12,11 @@
     display: revert;
 }
 
+/* General Stuff */
+html, body{
+    margin: 0;
+}
+
 /* Preferred box-sizing value */
 *,
 *::before,
