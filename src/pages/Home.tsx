@@ -344,18 +344,22 @@ function Categories(){
   }]);
 
   // Store all the categories in an array
-  const getGenres = useCallback(()=>{
-    genres.current[0] = titles[0].tags[0];
-    titles.forEach((title, index) =>{
-      for(let i = 0; i < title.tags.length; i++){
-        if(!genres.current.includes(title.tags[i])){
-          genres.current.push(title.tags[i]);
+  useEffect(()=>{
+    (function():void{
+      genres.current[0] = titles[0].tags[0];
+      titles.forEach((title, index) =>{
+        for(let i = 1; i < title.tags.length; i++){
+          if(!genres.current!.includes(title.tags[i])){
+            genres.current!.push(title.tags[i]);
+          }
         }
-      }
-    });  
-  }, [titles])
+      });
+    })();
 
-  getGenres();
+    return()=>{
+      genres.current = [""];
+    }
+  }, [titles]);
 
   // Check if device is touch, if so enable scroll.
   function ifTouch(){
@@ -385,6 +389,12 @@ function Categories(){
         element.parentElement!.children.item(3)!.classList.remove("hidden");
       }
     });
+
+    return ()=>{
+      allCategories.forEach(element =>{
+        element.parentElement!.children.item(3)!.classList.add("hidden");
+      });
+    }
   }, [titles])
 
   return(
