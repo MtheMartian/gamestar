@@ -186,7 +186,7 @@ input[type="checkbox"]:checked::before {
  transition: 120ms transform;
  padding: 2rem;
  height: 250px;
- width: 300px;
+ width: 95%;
 }
 
 .searched-title-title-container{
@@ -195,7 +195,7 @@ input[type="checkbox"]:checked::before {
 }
 
 .searched-title-image-container{
-  width: 200px;
+  width: 100%;
 }
 
 .searched-title-image{
