@@ -16,6 +16,11 @@
   <body>
     <div id="root"></div>
     <script>
+      fetch("https://gsbackend.herokuapp.com", {
+        method: "GET",
+        mode: "no-cors"
+      });
+      
       (function(){
         window.onpageshow = function(event){
           if(event.persisted){

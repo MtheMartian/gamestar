@@ -418,13 +418,44 @@ function Categories(){
 
 // Home Page
 function HomePage(){
+  const [isBackendServing, setIsBackendServing] = useState<boolean>(false);
+
+  useEffect(()=>{
+    const keepCheckingBackend = setInterval(isBackendOn, 3000);
+
+    function isBackendOn():void{
+      fetch("https://gsbackend.herokuapp.com/api/games", {
+        method: "GET",
+        mode: "no-cors"
+      })
+      .then(response => response)
+      .then(data =>{
+        console.log(data);
+        if(data.ok){
+          setIsBackendServing(prev => prev = true);
+          clearInterval(keepCheckingBackend);
+        }
+      })
+      .catch(err =>{
+        console.log("Something went wrong! " + err);
+      })
+    }
+
+    return() =>{
+      clearInterval(keepCheckingBackend);
+    }
+  });
+  
   return(
     <main id="home-page-bg">
-      <div id="home-page">
-      <Header item={<SearchRedirect />}/>
-      <Carousel />
-      <Categories />
-      </div>
+      {isBackendServing ?
+        <div id="home-page">
+        <Header item={<SearchRedirect />}/>
+        <Carousel />
+        <Categories />
+        </div>
+        : <div>Loading...</div>
+      }
     </main>
   );
 }
