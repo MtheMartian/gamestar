@@ -3,7 +3,8 @@
   openEdit: false,
   searchedTitles: null,
  }
- 
+
+ // Routes
  export async function getTitles(){
   try{
     const response = await fetch('/admintools.gamesportal/gettitles', {
@@ -46,6 +47,72 @@ export async function searchTitles(){
   }
   catch(err){
     console.log(err);
+  }
+}
+
+export async function getCarouselTitles(){
+  try{
+    const response = await fetch(`${process.env.REACT_APP_SERVE_ME}/api/games/carousel`, {
+      method: 'get'
+    });
+    const data = await response.json();
+    return data;
+  }
+  catch(err){
+    console.log(`Uh Oh! Carousel titles aren't loading! ${err}`);
+  }
+}
+
+export async function retrieveGames(){
+  try{
+    const response = await fetch(`${process.env.REACT_APP_SERVE_ME}/api/games`, {
+      method: 'get'
+    });
+    const data = await response.json();
+    return data;
+  }
+  catch(err){
+    console.log(`Uh Oh! Couldn't retrieve the games! ${err}`);
+  }
+}
+
+export function wakeUp(){
+    fetch(process.env.REACT_APP_SERVE_ME, {
+      method: 'get',
+      mode: "no-cors"
+    });
+}
+
+export async function getTitleInfo(gameId){
+  try{
+    const response = await fetch(`${process.env.REACT_APP_SERVE_ME}/api/games/info?title=${gameId}`);
+    const data = await response.json();
+    return data;
+  }
+  catch(err){
+    console.log(`Uh Oh! Couldn't retrieve the game! ${err}`);
+  }
+}
+
+export async function getReviews(gameId){
+  try{
+    const response = await fetch(`${process.env.REACT_APP_SERVE_ME}/api/reviews/${gameId}`);
+    const data = await response.json();
+    return data;
+  }
+  catch(err){
+    console.log(`Uh Oh! Couldn't retrieve the reviews! ${err}`);
+  }
+}
+
+export async function getSimilarGames(gameId){
+  try{
+    const response = await fetch(`${process.env.REACT_APP_SERVE_ME}/api/games/similar?gameId=${gameId}`);
+    const data = await response.json();
+    return data;
+  }
+  catch(err){
+    console.log(`Uh Oh! Couldn't retrieve the games! ${err}`);
   }
 }
 
