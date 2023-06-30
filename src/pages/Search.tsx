@@ -5,7 +5,7 @@ import { mainPageOptions, filtersArr } from '../js/search-page';
 import '../css/search-page.css';
 import '../css/general.css';
 import Header from '../general-components/header';
-
+import { wakeUp } from '../js/admin';
 
 // ITERATE THROUGH YOUR STUFF, DON'T HARD CODE!!! E.g. Tags and Platforms
 let entryFromUrl: string = "";
@@ -107,7 +107,11 @@ function SearchBar({appendTitles}: SearchbarProps){
 
   useEffect(()=>{
     setCurrentValue(prev => prev = url);
-    setTimeout(showClearButton, 100);
+    const clearButtonTimeout = setTimeout(showClearButton, 100);
+
+    return()=>{
+      clearTimeout(clearButtonTimeout);
+    }
   },[url]);
 
   return(
@@ -487,13 +491,9 @@ function Publishers({appendTitles, titles}: FilterProps){
 function App(){
   // Variables
   const [filterOverlay, setfilterOverlay] = useState<JSX.Element | null>(null);
-  const [searchedTitles, setSearchedTitles] = useState([{tags: [""],
-  platforms: [""],
-  releaseDate: "",
-  publisher: "",
-  imgURL: "",
-  id: "",
-  title: "",}]);
+  const [searchedTitles, setSearchedTitles] = useState<[{tags: string[],
+                      platforms: string[], releaseDate: string, publisher: string,
+                      imgURL: string, id: string, title: string}] | null>(null);
 
   // Global function, checks if a filter is open and opens the filter if so.
   function openFilterOverlay(){
@@ -573,6 +573,8 @@ function App(){
   setSearchedTitles(prev => prev = titles); // *Change page state (Titles)* 
 } 
 
+  useEffect(wakeUp, []);
+
   // Get titles based on URL and append to page
   useEffect(()=>{
     fetch(entryFromUrl !== "" ? `/api/games/search?entry=${entryFromUrl}` : "/api/games/search?entry={Empty}")
@@ -589,6 +591,19 @@ function App(){
   function noBodyScroll(){
     document.querySelector("body")!.style.overflow = "hidden";
   }
+
+  function retrievedTitles():JSX.Element[]{
+    const titles:JSX.Element[] = searchedTitles.map(game=>
+      <div key={game.id} className="searched-title-container">
+        <Link className='searched-title-image-container' to={`/info?title=${game.id}`}>
+          <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
+        </Link>
+        <div className='searched-title-title-container'>
+        < p className="searched-title-title">{game.title}</p>
+        </div>
+      </div>)
+      return titles;
+  }
  
   return (
     <main id="search-page-bg" onClick={openFilterOverlay}>
@@ -601,15 +616,7 @@ function App(){
           <Publishers appendTitles={appendSearchedTitles} titles={searchedTitles}/>
         </div>
           <section id="searched-titles" onScroll={noBodyScroll}>
-            {searchedTitles.map(game=>
-              <div key={game.id} className="searched-title-container">
-                <Link className='searched-title-image-container' to={`/info?title=${game.id}`}>
-                  <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
-                </Link>
-                <div className='searched-title-title-container'>
-                < p className="searched-title-title">{game.title}</p>
-                </div>
-              </div>)}
+            
           </section>
       </div>
       {filterOverlay}

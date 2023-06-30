@@ -9,15 +9,17 @@ import playstation from '../images/ps.png';
 import pc from '../images/pc.png';
 import nintentdo from '../images/switch.png';
 import Header from '../general-components/header';
+import { getCarouselTitles, retrieveGames, wakeUp } from '../js/admin';
+import Loader from '../general-components/PageLoader';
 
 function SearchRedirect(){
   return(
-    <a href="/search" id="search-section-wrapper">
+    <Link to="/search" id="search-section-wrapper">
       <span>Search</span>
       <span className="material-symbols-outlined" id="search-icon">
         search
       </span>
-    </a>
+    </Link>
   );
 }
 
@@ -96,17 +98,14 @@ function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
 function Carousel(){ 
   // Variables (Carousel)
   const carousel = useRef<HTMLDivElement | null>(null);
-  const [titlesCarousel, setTitlesCarousel] = useState([{
-    platforms: [""],
-    imgURL: "",
-    title: "",
-    id: "",
-    summary:"",
-    videoURL: "",
-  }]);
+  const [carouselTiles, setCarouselTiles] = useState<JSX.Element[] | undefined>();
+  const [titlesCarousel, setTitlesCarousel] = useState<[{platforms: string[],
+                                                        imgURL: string, title: string, 
+                                                        id: string, summary: string, 
+                                                        videoURL: string}] | null>(null);
 
   // Variables (Carousel timer/Counter)
-  const tilesNum = useMemo<number>(()=> titlesCarousel.length, [titlesCarousel]);
+  const tilesNum = useMemo<number>(()=> titlesCarousel ? titlesCarousel.length : 0, [titlesCarousel]);
   let tileCounter = useRef<number>(0);
   const tileTimer = useRef<NodeJS.Timer | null>(null);
 
@@ -221,17 +220,24 @@ function Carousel(){
     setTimeout(tileNavigationFill, 10);
   }, [tilesNum])
 
-  // Get titles for carousel (1 to 3 months > current date) and set carousel timer
+  // Get titles for carousel (1 to 3 months > current date)
   useEffect(()=>{
-    fetch("/api/games/carousel")
-    .then(response => response.json())
-    .then(data =>{
-      setTitlesCarousel(data);
-    })
-    .catch(err =>{
-      console.log(err);
-    });
+    async function retrieveCarouselTitles(){
+      const response = await getCarouselTitles();
+      if(typeof response === "object") setTitlesCarousel(prev => prev = response);
+    }
+    const interval:NodeJS.Timer = setInterval(retrieveCarouselTitles, 2000);
 
+    if(titlesCarousel !== null) clearInterval(interval);
+
+    return()=>{
+      clearInterval(interval);
+      setTitlesCarousel(prev => prev = null);
+    }
+  }, []);
+  
+  // Set carousel timer
+  useEffect(()=>{
     tileTimer.current = setInterval(()=>{
       carousel.current!.scrollLeft += carousel.current!.clientWidth * 0.65;
       tileCounter.current++;
@@ -248,47 +254,57 @@ function Carousel(){
     }
   }, [tilesNum]);
 
+  // Create carousel tiles
+  useCallback(():void =>{
+    setCarouselTiles(prev => prev = gameTiles());
+  }, [titlesCarousel])
+
+  function gameTiles():JSX.Element[] | undefined{
+    const myElements:JSX.Element[] | undefined = titlesCarousel?.map((title, index) =>
+      <div className="carousel-title-wrapper" key={title.id} >
+        <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
+        <Link className="carousel-title-image-wrapper" title={title.title} to={`/info?title=${title.id}`}>
+          <img alt="title" src={title.imgURL} className="carousel-title-image" />
+          <div className="carousel-title-platforms">
+            {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? <img src={xbox} alt="Xbox"/> : null}
+            {title.platforms.includes("PS4") || title.platforms.includes("PS5") ? <img src={playstation} alt="Xbox"/> : null}
+            {title.platforms.includes("PC") ? <img src={pc} alt="Xbox"/> : null}
+            {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
+          </div>
+        </Link>
+          {document.querySelector('body')!.clientWidth >= 1200 ? 
+            <div className="carousel-title-trailer-event-trigger" onClick={videoSelected}>
+            </div> : null
+          }
+          {document.querySelector('body')!.clientWidth >= 1200 ? 
+            <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
+            title="Title Trailer" ref={trailer} /> : null
+          }
+          {document.querySelector('body')!.clientWidth >= 1700 ?
+            <div className="carousel-title-summary-wrapper">
+            <p className="carousel-title-summary">
+              {title.summary}
+            </p>
+            </div> : null
+          }
+        <CarouselNavigation content={"<"} className={"hidden left"}
+        carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
+        tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
+        carousel={carousel} setTileTimer={setTileTimer}/>
+        <CarouselNavigation content={">"} className={"right"}
+        carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
+        tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
+        carousel={carousel} setTileTimer={setTileTimer}/>
+        <div className="tiles-navigation">
+          {tileNav}
+        </div>
+      </div>)
+    return myElements;
+  }
+
   return(
     <div id="home-page-carousel" ref={carousel}>
-      {titlesCarousel.map((title, index) =>
-        <div className="carousel-title-wrapper" key={title.id} >
-          <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
-          <Link className="carousel-title-image-wrapper" title={title.title} to={`/info?title=${title.id}`}>
-            <img alt="title" src={title.imgURL} className="carousel-title-image" />
-            <div className="carousel-title-platforms">
-              {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? <img src={xbox} alt="Xbox"/> : null}
-              {title.platforms.includes("PS4") || title.platforms.includes("PS5") ? <img src={playstation} alt="Xbox"/> : null}
-              {title.platforms.includes("PC") ? <img src={pc} alt="Xbox"/> : null}
-              {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
-            </div>
-          </Link>
-            {document.querySelector('body')!.clientWidth >= 1200 ? 
-              <div className="carousel-title-trailer-event-trigger" onClick={videoSelected}>
-              </div> : null
-            }
-            {document.querySelector('body')!.clientWidth >= 1200 ? 
-              <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
-              title="Title Trailer" ref={trailer} /> : null
-            }
-            {document.querySelector('body')!.clientWidth >= 1700 ?
-              <div className="carousel-title-summary-wrapper">
-              <p className="carousel-title-summary">
-                {title.summary}
-              </p>
-              </div> : null
-            }
-          <CarouselNavigation content={"<"} className={"hidden left"}
-          carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
-          tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
-          carousel={carousel} setTileTimer={setTileTimer}/>
-          <CarouselNavigation content={">"} className={"right"}
-          carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
-          tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
-          carousel={carousel} setTileTimer={setTileTimer}/>
-          <div className="tiles-navigation">
-            {tileNav}
-          </div>
-        </div>)}
+      {titlesCarousel === null ? <Loader /> : carouselTiles}
     </div>
   );
 }
@@ -335,31 +351,23 @@ type CategoryNavigationProps = {
 // All categories
 function Categories(){
   // Variables
-  const genres = useRef<[string]>([""]);
-  const [titles, setTitles] = useState([{
-    tags: [""],
-    id: "",
-    title: "",
-    imgURL: "",
-  }]);
+  const [allCategories, setAllCategories] = useState<JSX.Element[] | null>(null);
+  const genres = useRef<string[] | null>(null);
+  const [titles, setTitles] = useState<[{tags: string[], id: string,
+                                        title: string, imgURL: string}] | null>(null);
 
-  // Store all the categories in an array
-  useEffect(()=>{
-    (function():void{
-      genres.current[0] = titles[0].tags[0];
-      titles.forEach((title, index) =>{
-        for(let i = 1; i < title.tags.length; i++){
-          if(!genres.current!.includes(title.tags[i])){
-            genres.current!.push(title.tags[i]);
-          }
+  function storeGenres():void{
+    genres.current![0] = titles![0].tags[0];
+    titles!.forEach((title, index) =>{
+      for(let i = 1; i < title.tags.length; i++){
+        if(!genres.current!.includes(title.tags[i])){
+          genres.current!.push(title.tags[i]);
         }
-      });
-    })();
+      }
+    });
+  }
 
-    return()=>{
-      genres.current = [""];
-    }
-  }, [titles]);
+  useCallback(storeGenres, [titles])
 
   // Check if device is touch, if so enable scroll.
   function ifTouch(){
@@ -371,14 +379,21 @@ function Categories(){
 
   // Get all titles
   useEffect(()=>{
-    fetch("/api/games")
-    .then(response => response.json())
-    .then(data =>{
-      setTitles(prev => prev = data);
-    })
-    .catch(err=>{
-      console.log(err);
-    })
+    async function getGames(){
+      const response = await retrieveGames();
+      if(typeof response === "object") setTitles(prev => prev = response);
+    }
+    const intervals = setInterval(getGames, 2000);
+
+    if(titles){
+      clearInterval(intervals);
+    }
+
+    return()=>{
+      clearInterval(intervals);
+      setTitles(prev => prev = null);
+      genres.current = null;
+    }    
   }, [])
 
   // Hide category navigations (< >) if container can't be scrolled.
@@ -397,65 +412,49 @@ function Categories(){
     }
   }, [titles])
 
+  function gameGenres():JSX.Element[]{
+    const allgenres:JSX.Element[] = genres.current!.map((genre, index) =>
+      <div key={`genre${index}`} className="home-page-genre-container">
+        <h2 className="home-page-section-title">{genre}</h2>
+        <div className="home-page-genre" onTouchStart={ifTouch}>
+          {titles!.map(title =>
+          title.tags.includes(genre) ? 
+          <Link key={title.id} className="genre-titles" title={title.title} to={`/info?title=${title.id}`}>
+            <img className="genre-title-image" src={title.imgURL} alt="Title" />
+          </Link> : null)}
+        </div>
+        <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
+        <CategoryNavigation className={"category-navigation category-right hidden"} content={">"} />
+      </ div>);
+
+      return allgenres;
+  }
+
+  // Create elements for each genre
+  useCallback(()=>{
+    setAllCategories(prev => prev = gameGenres());
+  }, [titles])
+
   return(
     <div id="home-page-categories">
-      {genres.current.map((genre, index) =>
-        <div key={`genre${index}`} className="home-page-genre-container">
-          <h2 className="home-page-section-title">{genre}</h2>
-          <div className="home-page-genre" onTouchStart={ifTouch}>
-            {titles.map(title =>
-            title.tags.includes(genre) ? 
-            <Link key={title.id} className="genre-titles" title={title.title} to={`/info?title=${title.id}`}>
-              <img className="genre-title-image" src={title.imgURL} alt="Title" />
-            </Link> : null)}
-          </div>
-          <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
-          <CategoryNavigation className={"category-navigation category-right hidden"} content={">"} />
-        </ div>)}
+      {titles && allCategories ? allCategories : <Loader />}
     </div>
   );
 }
 
 // Home Page
 function HomePage(){
-  const [isBackendServing, setIsBackendServing] = useState<boolean>(false);
-
   useEffect(()=>{
-    const keepCheckingBackend = setInterval(isBackendOn, 3000);
+    wakeUp();
+  }, []);
 
-    function isBackendOn():void{
-      fetch("https://gsbackend.herokuapp.com/api/games", {
-        method: "GET",
-        mode: "no-cors"
-      })
-      .then(response => response)
-      .then(data =>{
-        console.log(data);
-        if(data.ok){
-          setIsBackendServing(prev => prev = true);
-          clearInterval(keepCheckingBackend);
-        }
-      })
-      .catch(err =>{
-        console.log("Something went wrong! " + err);
-      })
-    }
-
-    return() =>{
-      clearInterval(keepCheckingBackend);
-    }
-  });
-  
   return(
     <main id="home-page-bg">
-      {isBackendServing ?
-        <div id="home-page">
+      <div id="home-page">
         <Header item={<SearchRedirect />}/>
         <Carousel />
         <Categories />
         </div>
-        : <div>Loading...</div>
-      }
     </main>
   );
 }

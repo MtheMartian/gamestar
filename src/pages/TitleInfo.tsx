@@ -10,6 +10,8 @@ import playstation from '../images/ps.png';
 import pc from '../images/pc.png';
 import nintentdo from '../images/switch.png';
 import {CategoryNavigation} from '../pages/Home';
+import { getTitleInfo, getReviews, getSimilarGames, wakeUp } from '../js/admin';
+import Loader from '../general-components/PageLoader';
 
 let gameId: string = "";
 
@@ -24,66 +26,55 @@ function SearchRedirect(){
   );
 }
 
-function Card(){
-  const [title, setTitle] = useState({
-    platforms: [""],
-    imgURL: "",
-    consoleLinks: {
-      xbox: "",
-      pStore: "",
-      nintendo: "",
-    },
-    pcLinks: {
-      steam: "",
-      epicStore: "",
-    },
-    summary: "",
-    releaseDate: "",
-  });
+// General Types
+type TitleType = {
+  game: {
+    platforms: string[], 
+    imgURL: string,
+    consoleLinks: {xbox: string, pStore: string, nintendo: string},
+    pcLinks: {steam: string, epicStore: string}, summary: string,
+    releaseDate: string,
+    videoURL: string,
+    gameplayVid: string,
+    id: string,
+    title: string
+  } | null
+}
+
+export type Title = TitleType["game"];
+
+function Card({game} : TitleType){
+  const [title, setTitle] = useState<Title | null>(null);
 
   useEffect(()=>{
-    const url: string = window.location.href.toLowerCase();
-    
-    let index = 0;
-    
-    for(let i = 0; i < url.length; i++){
-      if(url[i] === "="){
-        index = i + 1;
-        break;
-      }
+    setTitle(prev => prev = game);
+
+    return()=>{
+      setTitle(prev => prev = null);
     }
-
-    gameId = url.slice(index, url.length);
-
-    fetch(`/api/games/info?title=${url.slice(index, url.length)}`)
-    .then(response => response.json())
-    .then(data =>{
-      setTitle(prev => prev = data);
-    })
-    .catch(err=>{
-      console.log(err);
-    })
   }, [])
 
   return(
     <section id="card-container">
+      {title ? 
       <div id="card">
-        {title !== null ? <img src={title.imgURL} className="card-title-image" alt="Title" /> : null}
+        <img src={title.imgURL} className="card-title-image" alt="Title" />
         <div id="card-title-platforms">
-          {title !== null ? title.platforms.includes("XSX") || title.platforms.includes("XSS") ? 
-            <a href={title.consoleLinks["xbox"]}><img src={xbox} alt="Xbox"/></a> : null : null}
-          {title !== null ? title.platforms.includes("PS4") || title.platforms.includes("PS5") ? 
-            <a href={title.consoleLinks["pStore"]}><img src={playstation} alt="PS"/></a> : null : null}
-          {title !== null ? title.platforms.includes("PC") ? 
-            <a href={title.pcLinks["steam"] !== "" ? title.pcLinks["steam"] : title.pcLinks["epicStore"]}><img src={pc} alt="PC"/></a> : null : null}
-          {title !== null ? title.platforms.includes("Switch") ? 
-            <a href={title.consoleLinks["nintendo"]}><img src={nintentdo} alt="Switch"/></a> : null : null}
+          {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? 
+            <a href={title.consoleLinks["xbox"]}><img src={xbox} alt="Xbox"/></a> : null}
+          {title.platforms.includes("PS4") || title.platforms.includes("PS5") ? 
+            <a href={title.consoleLinks["pStore"]}><img src={playstation} alt="PS"/></a> : null}
+          {title.platforms.includes("PC") ? 
+            <a href={title.pcLinks["steam"] !== "" ? title.pcLinks["steam"] : title.pcLinks["epicStore"]}><img src={pc} alt="PC"/></a> : null}
+          {title.platforms.includes("Switch") ? 
+            <a href={title.consoleLinks["nintendo"]}><img src={nintentdo} alt="Switch"/></a> : null}
         </div>
         <div id="card-title-summary-wrapper">
-          {title !== null ? <p id="card-title-summary">{title.summary}</p> : null}
+          <p id="card-title-summary">{title.summary}</p>
         </div>
-      </div>
-      <div id="card-title-release-date">Release Date: {title !== null ? title.releaseDate : "N/A"}</div>
+      </div> 
+      : <Loader />}
+      <div id="card-title-release-date">Release Date: {title !== null && title.releaseDate !== "" ? title.releaseDate : "N/A"}</div>
     </section>
   );
 }
@@ -101,7 +92,7 @@ function Discuss(){
     displayName: string,
     gameReview: string,
     whenPosted: string
-  }] | null>([{displayName: "", gameReview: "", whenPosted: ""}]);
+  }] | null>(null);
  ;
   const [_name, set_Name] = useState<any>("");
 
@@ -140,26 +131,29 @@ function Discuss(){
       saveCheckBox.current!.checked = true;
       nameValue.current!.style.pointerEvents = "none";
     }
+  }, [])
 
-    // Retrieve Reviews
-    fetch(`/api/reviews/${gameId}`)
-    .then(response => response.json())
-    .then(data =>{
-      if(data.message === "Success"){
-        setRetrievedReviews(prev => prev = data.data);
-      }
-      else{
-        setRetrievedReviews(prev => prev = data.data);
-      }
-    })
-    .catch(err =>{
-      console.log(err);
-    });     
+  useEffect(()=>{
+    async function retrieveReviews(){
+      const response = await getReviews(gameId);
+      if(response.message === "Success") setRetrievedReviews(prev => prev = response.data);
+    }
+
+    const intervals = setInterval(retrieveReviews, 2000);
+
+    if(retrievedReviews){
+      clearInterval(intervals);
+    }
+
+    return()=>{
+      clearInterval(intervals);
+      setRetrievedReviews(prev => prev = null);
+    }
   }, [])
 
   async function postReview(e:React.MouseEvent){
     e.preventDefault();
-    const response = await fetch(`/api/reviews/postreview/${gameId}`,{
+    const response = await fetch(`${process.env.REACT_APP_SERVE_ME}/api/reviews/postreview/${gameId}`,{
       method: "post",
       headers: {"Content-type": "application/json"},
       body: JSON.stringify({
@@ -212,52 +206,34 @@ function Discuss(){
   );
 }
 
-function Videos(){
-  const [title, setTitle] = useState({
-    videoURL: "",
-    gameplayVid: "",
-  });
+function Videos({game} : TitleType){
+  const [title, setTitle] = useState<Title | null>(null);
 
   useEffect(()=>{
-    const url = window.location.href.toLowerCase();
-    let index = 0;
-    
-    for(let i = 0; i < url.length; i++){
-      if(url[i] === "="){
-        index = i + 1;
-        break;
-      }
-    }
+    setTitle(prev => prev = game);
 
-    fetch(`/api/games/info?title=${url.slice(index, url.length)}`)
-    .then(response => response.json())
-    .then(data =>{
-      setTitle(prev => prev = data);
-    })
-    .catch(err=>{
-      console.log(err);
-    })
+    return()=>{
+      setTitle(prev => prev = null);
+    }
   }, [])
 
   return(
     <section id="title-info-reviews-videos">
+      {title ? 
       <div id="videos-container">
-      <iframe src={`${title.videoURL}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="videos-title" title="Trailer" allow="fullscreen"/> 
-      {title.gameplayVid !== "" ?
-      <iframe src={`${title.gameplayVid}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.gameplayVid.slice(30, title.gameplayVid.length)}&loop=1`} className="videos-title" title="GamePlay" allow="fullscreen"/> 
-      : null}
-      </div>
+        <iframe src={`${title.videoURL}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="videos-title" title="Trailer" allow="fullscreen"/> 
+        {title.gameplayVid !== "" ?
+        <iframe src={`${title.gameplayVid}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.gameplayVid.slice(30, title.gameplayVid.length)}&loop=1`} className="videos-title" title="GamePlay" allow="fullscreen"/> 
+        : null}
+      </div> 
+      : <Loader />}
       <Discuss />
     </section>
   )
 }
 
 function SimilarTitles(){
-  const [titles, setTitles] = useState([{
-    id: "",
-    imgURL: "",
-    title: "",
-  }]);
+  const [titles, setTitles] = useState<[{id: string, imgURL: string, title: string}] | null>(null);
   const similarTitles = useRef<HTMLDivElement | null>(null);
 
   // Check if device is touch, if so enable scroll.
@@ -268,24 +244,21 @@ function SimilarTitles(){
   }
 
   useEffect(()=>{
-    const url = window.location.href.toLowerCase();
-    let index = 0;
-    
-    for(let i = 0; i < url.length; i++){
-      if(url[i] === "="){
-        index = i + 1;
-        break;
-      }
+    async function getTheGames(){
+      const response = await getSimilarGames(gameId);
+      if(typeof response === "object") setTitles(prev => prev = response);
     }
 
-    fetch(`/api/games/similar?gameId=${url.slice(index, url.length)}`)
-    .then(response => response.json())
-    .then(data =>{
-      setTitles(prev => prev = data);
-    })
-    .catch(err=>{
-      console.log(err);
-    })
+    const intervals = setInterval(getTheGames, 2000);
+
+    if(titles){
+      clearInterval(intervals);
+    }
+
+    return()=>{
+      clearInterval(intervals);
+      setTitles(prev => prev = null);
+    }
 
   }, [])
 
@@ -300,13 +273,15 @@ function SimilarTitles(){
   return(
     <section id="similar-titles-container">
       <h2 id="similar-section-title">Similar Games</h2>
+      {titles? 
       <div id="similar-titles-wrapper" onTouchStart={ifTouch} ref={similarTitles}>
         {titles.map(similarTitle=>
           <a key={similarTitle.id} className="genre-titles" title={similarTitle.title} href={`/info?title=${similarTitle.id}`}>
             <img className="genre-title-image" src={similarTitle.imgURL} alt="Title" />
           </a>
         )}
-      </div>
+      </div> 
+      : <Loader />}
       <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
       <CategoryNavigation className={"category-navigation category-right hidden"} content={">"} />
     </section>
@@ -314,12 +289,48 @@ function SimilarTitles(){
 }
 
 function TitleInfo(){
+  const [title, setTitle] = useState<Title | null>(null);
+
+  useEffect(wakeUp, []);
+
+  useEffect(()=>{
+    const url: string = window.location.href.toLowerCase();
+    
+    let index = 0;
+    
+    for(let i = 0; i < url.length; i++){
+      if(url[i] === "="){
+        index = i + 1;
+        break;
+      }
+    }
+
+    gameId = url.slice(index, url.length);
+
+    async function titleInfo(){
+      const response = await getTitleInfo(gameId);
+      if(typeof response === "object") setTitle(prev => prev = response);
+    }
+
+    const intervals = setInterval(titleInfo, 2000);
+
+    if(title){
+      clearInterval(intervals);
+    }
+
+    return()=>{
+      clearInterval(intervals);
+      setTitle(prev => prev = null);
+    }
+  }, [])
+
+
   return(
     <main id="title-info-page-bg">
       <div id="title-info-page">
         <Header item={<SearchRedirect />}/>
-        <Card />
-        <Videos />
+        <Card game={title} />
+        <Videos game={title}/>
         <SimilarTitles />
       </div>
     </main>

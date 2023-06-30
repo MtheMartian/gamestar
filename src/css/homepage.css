@@ -29,6 +29,7 @@ button{
   justify-content: center;
   gap: 5rem;
   transition: 150ms transform;
+  position: relative;
 }
 
 .category-navigation{
