@@ -4,6 +4,9 @@
   searchedTitles: null,
  }
 
+ // Variables
+
+
  // Routes
  export async function getTitles(){
   try{
@@ -76,11 +79,17 @@ export async function retrieveGames(){
   }
 }
 
-export function wakeUp(){
-    fetch(process.env.REACT_APP_SERVE_ME, {
-      method: 'get',
-      mode: "no-cors"
-    });
+export async function wakeUp(){
+    try{
+      const response = await fetch(process.env.REACT_APP_SERVE_ME, {
+        method: 'get',
+        mode: "cors"
+      });
+      return response.ok;
+    }
+    catch(err){
+      console.log(`Currently unable to contact the server. ${err}`);
+    }
 }
 
 export async function getTitleInfo(gameId){

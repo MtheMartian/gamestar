@@ -1,24 +1,32 @@
 import React, { SyntheticEvent } from 'react';
-import {useState, useRef, useEffect} from 'react';
+import {useState, useRef, useEffect, useCallback} from 'react';
 import { Link } from 'react-router-dom';
-import { mainPageOptions, filtersArr } from '../js/search-page';
 import '../css/search-page.css';
 import '../css/general.css';
 import Header from '../general-components/header';
 import { wakeUp } from '../js/admin';
+import { TypeGame, TypeFilters } from '../js/types';
+import Loader from '../general-components/PageLoader';
 
 // ITERATE THROUGH YOUR STUFF, DON'T HARD CODE!!! E.g. Tags and Platforms
-let entryFromUrl: string = "";
+
 
 // Clear Filters Arrays
 function clearFiltersArr(){
-  Object.keys(filtersArr).forEach(key => {
-    filtersArr[key] = [];
+  Object.keys(filterArrays).forEach(key => {
+    filterArrays[key] = [];
   });
   document.querySelectorAll('input').forEach(element =>{
     element.checked = false;
   });
 }
+
+// Fields
+let titlesArr: TypeGame[] = [];
+let entryFromUrl: string = "";
+let filterArrays: TypeFilters = {year: [], genre: [],
+                                  platforms: [], publishers: []};
+let isSelectionOpen: boolean = false;
 
 // Search Bar
 type SearchbarProps = {
@@ -90,12 +98,12 @@ function SearchBar({appendTitles}: SearchbarProps){
   async function searchForTitle(){
     try{
       const searchInput: string = searchValue.current!.value.toLowerCase();
-      const response = await fetch(`/api/games/search?entry=${searchInput.length === 0 || searchInput[0] === " " ? "{Empty}" : searchInput}`,{
+      const response = await fetch(`${process.env.REACT_APP_SERVE_ME}/api/games/search?entry=${searchInput.length === 0 || searchInput[0] === " " ? "{Empty}" : searchInput}`,{
         method: 'get'
       });
       await response.json()
       .then(title=>{
-        mainPageOptions.foundTitles = title;
+        titlesArr = title;
         clearFiltersArr();
         appendTitles();
       });
@@ -127,7 +135,7 @@ function SearchBar({appendTitles}: SearchbarProps){
 // All Filters and filter overlay.
 type FilterProps = {
   appendTitles: Function,
-  titles: object[],
+  titles: TypeGame[] | null,
 }
 // All written in the same order, except overlay.
 function Tags({appendTitles, titles}: FilterProps){
@@ -138,13 +146,13 @@ function Tags({appendTitles, titles}: FilterProps){
 
   // Open the filter and some styling stuff
   function showFilter(){
-    if(mainPageOptions.isSelectionOpen === false){
-      mainPageOptions.isSelectionOpen = true;
+    if(isSelectionOpen === false){
+      isSelectionOpen = true;
       filter.current!.classList.remove('hidden');
       filterBg.current!.style.border = "2px solid rgba(107, 107, 107, 1)";
     }
     else{
-      mainPageOptions.isSelectionOpen = false;
+      isSelectionOpen = false;
       Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
         element.classList.add('hidden');
       });
@@ -158,10 +166,10 @@ function Tags({appendTitles, titles}: FilterProps){
   function applyFilter(event: React.ChangeEvent<HTMLInputElement>){
     const value = event.target.value;
     if(event.target.checked){
-      filtersArr.genre.push(value);
+      filterArrays.genre.push(value);
     }
     else{
-      const newArr = filtersArr.genre.filter((genre)=>{
+      const newArr = filterArrays.genre.filter((genre)=>{
         if(genre.includes(value)){
           return false;
         }
@@ -169,7 +177,7 @@ function Tags({appendTitles, titles}: FilterProps){
           return true;
         }
       });
-      filtersArr.genre = newArr;
+      filterArrays.genre = newArr;
     }
     appendTitles();
   }
@@ -178,12 +186,12 @@ function Tags({appendTitles, titles}: FilterProps){
     // Append the filters of the current titles on the page
     function setRetrievedTags(){
       // Check for dupes
-      if(mainPageOptions.foundTitles !== null && mainPageOptions.foundTitles.length > 0){
+      if(titlesArr !== null && titlesArr.length > 0){
         let allTags = [];
-        for(let i = 0; i < mainPageOptions.foundTitles.length; i++){
-          for(let j = 0; j < mainPageOptions.foundTitles[i].tags.length; j++){
-            if(allTags.includes(mainPageOptions.foundTitles[i].tags[j]) === false){
-              allTags.push(mainPageOptions.foundTitles[i].tags[j]);
+        for(let i = 0; i < titlesArr.length; i++){
+          for(let j = 0; j < titlesArr[i]!.tags.length; j++){
+            if(allTags.includes(titlesArr[i]!.tags[j]) === false){
+              allTags.push(titlesArr[i]!.tags[j]);
             }
           }
         }
@@ -221,13 +229,13 @@ function Platforms({appendTitles, titles}: FilterProps){
   const [platforms, setPlatforms] = useState<string[]>([]);
   
   function showFilter(){
-    if(mainPageOptions.isSelectionOpen === false){
-      mainPageOptions.isSelectionOpen = true;
+    if(isSelectionOpen === false){
+      isSelectionOpen = true;
       filter.current!.classList.remove('hidden');
       filterBg.current!.style.border = "2px solid rgba(107, 107, 107, 1)";
     }
     else{
-      mainPageOptions.isSelectionOpen = false;
+      isSelectionOpen = false;
       Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
         element.classList.add('hidden');
       });
@@ -241,10 +249,10 @@ function Platforms({appendTitles, titles}: FilterProps){
   function applyFilter(event: React.ChangeEvent<HTMLInputElement>){
     const value = event.target.value;
     if(event.target.checked){
-      filtersArr.platforms.push(value);
+      filterArrays.platforms.push(value);
     }
     else{
-      const newArr = filtersArr.platforms.filter((platform)=>{
+      const newArr = filterArrays.platforms.filter((platform)=>{
         if(platform.includes(value)){
           return false;
         }
@@ -252,7 +260,7 @@ function Platforms({appendTitles, titles}: FilterProps){
           return true;
         }
         });
-        filtersArr.platforms = newArr;
+        filterArrays.platforms = newArr;
     }
     appendTitles();
   }
@@ -261,12 +269,12 @@ function Platforms({appendTitles, titles}: FilterProps){
 useEffect(()=>{
   // Show filters based on titles retrieved from database
   function setRetrievedPlatforms(){
-    if(mainPageOptions.foundTitles !== null && mainPageOptions.foundTitles.length > 0){
+    if(titlesArr !== null && titlesArr.length > 0){
       let allPlatforms = [];
-      for(let i = 0; i < mainPageOptions.foundTitles.length; i++){
-        for(let j = 0; j < mainPageOptions.foundTitles[i].platforms.length; j++){
-          if(allPlatforms.includes(mainPageOptions.foundTitles[i].platforms[j]) === false){
-            allPlatforms.push(mainPageOptions.foundTitles[i].platforms[j]);
+      for(let i = 0; i < titlesArr.length; i++){
+        for(let j = 0; j < titlesArr[i]!.platforms.length; j++){
+          if(allPlatforms.includes(titlesArr[i]!.platforms[j]) === false){
+            allPlatforms.push(titlesArr[i]!.platforms[j]);
           }
         }
       }
@@ -305,13 +313,13 @@ function Year({appendTitles, titles}: FilterProps){
   const [year, setYear] = useState<string[]>([]);
 
   function showFilter(){
-    if(mainPageOptions.isSelectionOpen === false){
-      mainPageOptions.isSelectionOpen = true;
+    if(isSelectionOpen === false){
+      isSelectionOpen = true;
       filter.current!.classList.remove('hidden');
       filterBg.current!.style.border = "2px solid rgba(107, 107, 107, 1)";
     }
     else{
-      mainPageOptions.isSelectionOpen = false;
+      isSelectionOpen = false;
       Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
         element.classList.add('hidden');
       });
@@ -325,10 +333,10 @@ function Year({appendTitles, titles}: FilterProps){
   function applyFilter(event: React.ChangeEvent<HTMLInputElement>){
     const value = event.target.value;
     if(event.target.checked){
-      filtersArr.year.push(value);
+      filterArrays.year.push(value);
     }
     else{
-      const newArr = filtersArr.year.filter((year)=>{
+      const newArr = filterArrays.year.filter((year)=>{
         if(year.includes(value)){
           return false;
         }
@@ -336,7 +344,7 @@ function Year({appendTitles, titles}: FilterProps){
           return true;
         }
       });
-      filtersArr.year = newArr;
+      filterArrays.year = newArr;
     }
     appendTitles();
   }
@@ -344,11 +352,11 @@ function Year({appendTitles, titles}: FilterProps){
 useEffect(()=>{
   // Show filters based on retrieved titles from database
   function setRetrievedReleaseDates(){
-    if(mainPageOptions.foundTitles !== null && mainPageOptions.foundTitles.length > 0){
+    if(titlesArr !== null && titlesArr.length > 0){
       let allDates = [];
-      for(let j = 0; j < mainPageOptions.foundTitles.length; j++){
-        if(allDates.includes(mainPageOptions.foundTitles[j].releaseDate.slice(6, 10)) === false){
-          allDates.push(mainPageOptions.foundTitles[j].releaseDate.slice(6, 10));
+      for(let j = 0; j < titlesArr.length; j++){
+        if(allDates.includes(titlesArr[j]!.releaseDate.slice(6, 10)) === false){
+          allDates.push(titlesArr[j]!.releaseDate.slice(6, 10));
         }
       }
       setYear(allDates);
@@ -382,7 +390,7 @@ function FilterOverlay(){
   const filterOverlay = useRef<HTMLDivElement | null>(null);
 
   function closeFilters(){
-    if(mainPageOptions.isSelectionOpen){
+    if(isSelectionOpen){
       Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
         element.classList.add('hidden');
       });
@@ -391,7 +399,7 @@ function FilterOverlay(){
         
       })
       filterOverlay.current!.classList.add('hidden');
-      mainPageOptions.isSelectionOpen = false;
+      isSelectionOpen = false;
     }
   }
 
@@ -408,14 +416,14 @@ function Publishers({appendTitles, titles}: FilterProps){
   const filterBg = useRef<HTMLDivElement | null>(null);
 
   function showFilter(){
-    if(mainPageOptions.isSelectionOpen === false){
-      mainPageOptions.isSelectionOpen = true;
+    if(isSelectionOpen === false){
+      isSelectionOpen = true;
       filter.current!.classList.remove('hidden');
       filterBg.current!.style.background = "rgb(0, 6, 12)";
       filterBg.current!.style.border = "2px solid rgba(107, 107, 107, 1)";
     }
     else{
-      mainPageOptions.isSelectionOpen = false;
+      isSelectionOpen = false;
       Array.from(document.getElementsByClassName('custom-selections') as HTMLCollectionOf<HTMLUListElement>).forEach(element =>{
         element.classList.add('hidden');
       });
@@ -429,10 +437,10 @@ function Publishers({appendTitles, titles}: FilterProps){
   function applyFilter(event: React.ChangeEvent<HTMLInputElement>){
     const value = event.target.value;
     if(event.target.checked){
-          filtersArr.publishers.push(value);
+          filterArrays.publishers.push(value);
     }
     else{
-      const newArr = filtersArr.publishers.filter((publisher)=>{
+      const newArr = filterArrays.publishers.filter((publisher)=>{
         if(publisher.includes(value)){
           return false;
         }
@@ -440,7 +448,7 @@ function Publishers({appendTitles, titles}: FilterProps){
           return true;
         }
       });
-      filtersArr.publishers = newArr;
+      filterArrays.publishers = newArr;
     }
     appendTitles();
   }
@@ -448,12 +456,12 @@ function Publishers({appendTitles, titles}: FilterProps){
   useEffect(() =>{
     // Show filters based on retrieved titles from database
     function setRetrievedPublishers(){
-      const titleArr = mainPageOptions.foundTitles;
+      const titleArr = titlesArr;
       const allPublishers: string[] = [];
       if(titleArr !== null && titleArr.length > 0){
         for(let i = 0; i < titleArr.length; i++){
-          if(!allPublishers.includes(titleArr[i].publisher)){
-            allPublishers.push(titleArr[i].publisher);
+          if(!allPublishers.includes(titleArr[i]!.publisher)){
+            allPublishers.push(titleArr[i]!.publisher);
           }
         }
         setPublishers(allPublishers);
@@ -491,13 +499,13 @@ function Publishers({appendTitles, titles}: FilterProps){
 function App(){
   // Variables
   const [filterOverlay, setfilterOverlay] = useState<JSX.Element | null>(null);
-  const [searchedTitles, setSearchedTitles] = useState<[{tags: string[],
-                      platforms: string[], releaseDate: string, publisher: string,
-                      imgURL: string, id: string, title: string}] | null>(null);
+  const [searchedTitles, setSearchedTitles] = useState<TypeGame[] | null>(null);
+  const [returnTitles, setReturnTitles] = useState<JSX.Element[] | null>(null);
+  const [isAwake, setIsAwake] = useState<boolean | undefined>(false);
 
   // Global function, checks if a filter is open and opens the filter if so.
   function openFilterOverlay(){
-    if(mainPageOptions.isSelectionOpen){
+    if(isSelectionOpen){
       setfilterOverlay(prev => prev = <FilterOverlay />);
       document.querySelector('body')!.style.overflow = "hidden";
     }
@@ -509,15 +517,7 @@ function App(){
 
   // Append the titles and/or filtered titles to the page.
   function appendSearchedTitles(){
-    const titlesArr = mainPageOptions.foundTitles;
-    const titles: {
-      tags: string[],
-      platforms: string[],
-      releaseDate: string,
-      publisher: string,
-      imgURL: string,
-      id: string,
-      title: string,}[] = [];
+    const titles: TypeGame[] = [];
 
     // Filter the retrieved titles from database based on the selected filters.
     // *Declare counters to compare with the length of the arrays of "filtersArr" (look at imports).*
@@ -529,77 +529,98 @@ function App(){
 
       // *Update counters*
       (function (){
-        for(let i = 0; i < filtersArr.genre.length; i++){
-          if(titlesArr[j].tags.includes(filtersArr.genre[i])){
+        for(let i = 0; i < filterArrays.genre.length; i++){
+          if(titlesArr[j]!.tags.includes(filterArrays.genre[i])){
                 containsGenre++;
           }
         }
-        for(let i = 0; i < filtersArr.year.length; i++){
-          if(titlesArr[j].releaseDate.includes(filtersArr.year[i])){
+        for(let i = 0; i < filterArrays.year.length; i++){
+          if(titlesArr[j]!.releaseDate.includes(filterArrays.year[i])){
             containsYear++;
           }
         }
-        for(let i = 0; i < filtersArr.platforms.length; i++){
-          if(titlesArr[j].platforms.includes(filtersArr.platforms[i])){
+        for(let i = 0; i < filterArrays.platforms.length; i++){
+          if(titlesArr[j]!.platforms.includes(filterArrays.platforms[i])){
             containsPlatform++;
           }
         }
-        for(let i = 0; i < filtersArr.publishers.length; i++){
-          if(titlesArr[j].publisher.includes(filtersArr.publishers[i])){
+        for(let i = 0; i < filterArrays.publishers.length; i++){
+          if(titlesArr[j]!.publisher.includes(filterArrays.publishers[i])){
             containsPublisher++;
           }
         } 
       })();
 
     // *Append filtered titles (if the filters array aren't empty)*
-      if((filtersArr.year.length > 0 || filtersArr.genre.length > 0
-        || filtersArr.platforms.length > 0 || filtersArr.publishers.length > 0)
-          && (containsGenre === filtersArr.genre.length && containsYear === filtersArr.year.length)
-          && containsPlatform === filtersArr.platforms.length && containsPublisher === filtersArr.publishers.length){
+      if((filterArrays.year.length > 0 || filterArrays.genre.length > 0
+        || filterArrays.platforms.length > 0 || filterArrays.publishers.length > 0)
+          && (containsGenre === filterArrays.genre.length && containsYear === filterArrays.year.length)
+          && containsPlatform === filterArrays.platforms.length && containsPublisher === filterArrays.publishers.length){
               
-          titles.push(titlesArr[j]);
+          titles!.push(titlesArr[j]);
            containsYear = 0;
            containsGenre = 0;
            containsPlatform = 0;
            containsPublisher = 0;
       }
       // Append all titles (if filter arrays are empty)
-      else if(filtersArr.year.length === 0 && filtersArr.genre.length === 0 
-              && filtersArr.platforms.length === 0 && filtersArr.publishers.length === 0){
+      else if(filterArrays.year.length === 0 && filterArrays.genre.length === 0 
+              && filterArrays.platforms.length === 0 && filterArrays.publishers.length === 0){
                     
-                titles.push(titlesArr[j]);
+                titles!.push(titlesArr[j]);
       } 
   }
   setSearchedTitles(prev => prev = titles); // *Change page state (Titles)* 
 } 
-
-  useEffect(wakeUp, []);
+ 
+useEffect(()=>{
+  async function checkServer(){
+    const response = await wakeUp();
+    setIsAwake(prev => prev = response);
+  }
+  checkServer();
+});
 
   // Get titles based on URL and append to page
   useEffect(()=>{
-    fetch(entryFromUrl !== "" ? `/api/games/search?entry=${entryFromUrl}` : "/api/games/search?entry={Empty}")
-    .then(res => res.json())
-    .then(foundItems=>{
-      mainPageOptions.foundTitles = foundItems;
-      setSearchedTitles(prev => prev = mainPageOptions.foundTitles);
-    })
-    .catch(err=>{
-      console.log(err);
-    });
-  }, []);
+    async function getTitles(){
+      const response = await fetch(entryFromUrl !== "" ? `${process.env.REACT_APP_SERVE_ME}/api/games/search?entry=${entryFromUrl}` : `${process.env.REACT_APP_SERVE_ME}/api/games/search?entry={Empty}`);
+      const data = await response.json();
+      titlesArr = data;
+      setSearchedTitles(prev => prev = titlesArr);
+    }
+
+    if(isAwake) getTitles();
+
+    return()=>{
+      setSearchedTitles(prev => prev = null);
+    }
+
+  }, [isAwake]);
 
   function noBodyScroll(){
     document.querySelector("body")!.style.overflow = "hidden";
   }
 
+  // Create titles element
+  useEffect(()=>{
+    if(searchedTitles){
+      const searchedGames: JSX.Element[] = retrievedTitles();
+      setReturnTitles(prev => prev = searchedGames);
+    }
+
+    return()=>{
+      setReturnTitles(prev => prev = null);
+    }
+  }, [searchedTitles])
+
   function retrievedTitles():JSX.Element[]{
-    const titles:JSX.Element[] = searchedTitles.map(game=>
-      <div key={game.id} className="searched-title-container">
-        <Link className='searched-title-image-container' to={`/info?title=${game.id}`}>
-          <img src={game.imgURL} alt="Poster" className="searched-title-image"></img>
+    const titles:JSX.Element[] = searchedTitles!.map(game=>
+      <div key={game!.id} className="searched-title-container">
+        <Link className='searched-title-image-container' to={`/info?title=${game!.id}`}>
+          <img src={game!.imgURL} alt="Poster" className="searched-title-image"></img>
         </Link>
         <div className='searched-title-title-container'>
-        < p className="searched-title-title">{game.title}</p>
         </div>
       </div>)
       return titles;
@@ -616,7 +637,7 @@ function App(){
           <Publishers appendTitles={appendSearchedTitles} titles={searchedTitles}/>
         </div>
           <section id="searched-titles" onScroll={noBodyScroll}>
-            
+            {searchedTitles ? returnTitles : <Loader />}
           </section>
       </div>
       {filterOverlay}

@@ -9,8 +9,9 @@ import playstation from '../images/ps.png';
 import pc from '../images/pc.png';
 import nintentdo from '../images/switch.png';
 import Header from '../general-components/header';
-import { getCarouselTitles, retrieveGames, wakeUp } from '../js/admin';
+import { getCarouselTitles, retrieveGames, wakeUp} from '../js/admin';
 import Loader from '../general-components/PageLoader';
+import { TypeGame } from '../js/types';
 
 function SearchRedirect(){
   return(
@@ -23,289 +24,121 @@ function SearchRedirect(){
   );
 }
 
-// Carousel
-type CarouselNavigationProps = {
-  carousel: React.MutableRefObject<HTMLDivElement | null>,
-  tileTimer: React.MutableRefObject<NodeJS.Timer | null>,
-  tileCounter: React.MutableRefObject<number>,
-  tilesNum: number,
-  content: string,
-  className: string,
-  setTileTimer: Function,
-  tileNavigationFill: Function,
-  carouselNavFunction: Function,
-}
+function CarouselNavigation(props: {titles: TypeGame[] | null}){
+  const [carouselTitles, setCarouselTitles] = useState<typeof props.titles>(null);
+  const tileCounter = useRef<number>(0);
+  const carouselTimer = useRef<NodeJS.Timer | null>(null);
 
-function CarouselNavigation({carousel, tileTimer, tileCounter, tilesNum,
-    content, className, setTileTimer, tileNavigationFill, carouselNavFunction} : CarouselNavigationProps){
-  // Go to next carousel tile, reset timer
-  function nextTile(){
-    if(carousel.current){
-      clearInterval(tileTimer.current!);
-      carousel.current.scrollLeft += carousel.current.clientWidth * 0.65;
-      tileCounter.current++;
-      carouselNavFunction();
-      setTileTimer();
-      tileNavigationFill();
-      Array.from(document.getElementsByClassName("carousel-title-image-wrapper") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
-        element.style.cssText = "";
-      });
-      Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
-        element.style.cssText = "";
-      });
-      Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
-        element.style.cssText = "";
-      });
-      if(tileCounter.current > tilesNum){
-        tileCounter.current = 0;
-        carousel.current.scrollLeft = 0;
-      }
-    }
-  }
-
-  // Go to previous carousel tile, reset timer
-  function previousTile(){
-    if(carousel.current){
-      clearInterval(tileTimer.current!);
-      carousel.current.scrollLeft -= carousel.current.clientWidth * 0.65;
-      tileCounter.current--;
-      carouselNavFunction();
-      setTileTimer();
-      tileNavigationFill();
-      Array.from(document.getElementsByClassName("carousel-title-image-wrapper") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
-        element.style.cssText = "";
-      });
-      Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
-        element.style.cssText = "";
-      });
-      Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
-        element.style.cssText = "";
-      });
-      if(tileCounter.current < 0){
-        tileCounter.current = 0;
-        carousel.current.scrollLeft = 0;
-      }
-    }
-  }
-
-  return(
-    <button className={className} onClick={content === ">" ? nextTile : previousTile}>
-          {content}
-    </button>
-  )
-}
-
-function Carousel(){ 
-  // Variables (Carousel)
-  const carousel = useRef<HTMLDivElement | null>(null);
-  const [carouselTiles, setCarouselTiles] = useState<JSX.Element[] | undefined>();
-  const [titlesCarousel, setTitlesCarousel] = useState<[{platforms: string[],
-                                                        imgURL: string, title: string, 
-                                                        id: string, summary: string, 
-                                                        videoURL: string}] | null>(null);
-
-  // Variables (Carousel timer/Counter)
-  const tilesNum = useMemo<number>(()=> titlesCarousel ? titlesCarousel.length : 0, [titlesCarousel]);
-  let tileCounter = useRef<number>(0);
-  const tileTimer = useRef<NodeJS.Timer | null>(null);
-
-  // Variables (Trailer Video)
-  const trailer = useRef(null);
-
-  // Display video if hovered over (PC) or tapped (Mobile).
-  function videoSelected(){
-    const iFrameTrigger = Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger") as HTMLCollectionOf<HTMLDivElement>);
-    const iFrames = Array.from(document.getElementsByClassName("carousel-title-trailer") as HTMLCollectionOf<HTMLIFrameElement>);
-    const carouselTitles = Array.from(document.getElementsByClassName("carousel-title-image-wrapper") as HTMLCollectionOf<HTMLDivElement>);
-    console.log("Clicked on video!");
-    clearInterval(tileTimer.current!);
-    carouselTitles.forEach(element=>{
-      element.style.zIndex = "1";
-    })
-    iFrames.forEach(element =>{
-      element.style.height = "33rem";
-    });
-    iFrameTrigger.forEach(element=>{
-      element.style.display = " none";
-    })
-  }
-
-  // Variables (Carousel Navigation)
-  const [tileNav, setTileNav] = useState<JSX.Element[]>([]);
-
-  // Fill background of tile navigation buttons based on tile counter
-  function tileNavigationFill(){
-   const tileNavs = Array.from(document.getElementsByClassName("tile-nav-button") as HTMLCollectionOf<HTMLButtonElement>);
-   tileNavs.forEach(element=>{
-    if(element.id === `tile${tileCounter.current.toString()}`){
-      element.style.background = "rgba(44, 0, 58, 1)";
-    }
-    else{
-      element.style.background = "";
-    }
-   });
-  }
-
-  // Hide Carousel Navigation buttons
-  function carouselNavFunction(){
-    // Right
-    if(tileCounter.current === tilesNum - 1){
-      Array.from(document.getElementsByClassName("right")).forEach(element=>{
-        element.classList.add("hidden");
-      });
-    }
-    else{
-      Array.from(document.getElementsByClassName("right")).forEach(element=>{
-        element.classList.remove("hidden");
-      });
-    }
-
-    // Left
-    if(tileCounter.current === 0 || tileCounter.current === tilesNum){
-      Array.from(document.getElementsByClassName("left")).forEach(element=>{
-        element.classList.add("hidden");
-      });
-    }
-    else{
-      Array.from(document.getElementsByClassName("left")).forEach(element=>{
-        element.classList.remove("hidden");
-      });
-    }
-  }
-
-  // Set carousel timer after reset
-  function setTileTimer(){
-    tileTimer.current = setInterval(()=>{
-      carousel.current!.scrollLeft += carousel.current!.clientWidth * 0.65;
-      tileCounter.current++;
-      carouselNavFunction();
-      if(tileCounter.current === tilesNum){
-        carousel.current!.scrollLeft = 0;
-        tileCounter.current = 0;
-      }
-      tileNavigationFill();
+  function timer():NodeJS.Timer{
+    const carouselTimer: NodeJS.Timer = setInterval(()=>{
+      setTimeout(()=>{
+        tileCounter.current++;
+        if(tileCounter.current > carouselTitles!.length - 1){
+          tileCounter.current = 0;
+        }
+        document.getElementById(`tile${tileCounter.current}`)?.scrollIntoView({
+          behavior: "smooth"
+        });
+        highlightTile(`tile${tileCounter.current}`);
+      }, 100);
     }, 9000);
+    return carouselTimer;
   }
 
-  // Append tile nav buttons to page
-  useEffect(()=>{
-    function tileNavigation(){
-      let jsxElements = [];
-      for(let i = 0; i < tilesNum; i++){
-        jsxElements.push(
-          <button key={i} id={`tile${i}`}className="tile-nav-button"
-            onClick={()=>{
-              carousel.current!.scrollLeft = carousel.current!.clientWidth * i;
-              tileCounter.current = i;
-              tileNavigationFill();
-              carouselNavFunction();
-              Array.from(document.getElementsByClassName("carousel-title-image-wrapper") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
-                element.style.cssText = "";
-              });
-              Array.from(document.getElementsByTagName("iframe")).forEach(element=>{
-                element.style.cssText = "";
-              });
-              Array.from(document.getElementsByClassName("carousel-title-trailer-event-trigger") as HTMLCollectionOf<HTMLDivElement>).forEach(element=>{
-                element.style.cssText = "";
-              });
-              clearInterval(tileTimer.current!);
-              setTileTimer();
-            }}>
-          </button>
-        )
+  function getIdFromHref(id: string, skip: number): string{
+    let tileId: string = "";
+    let start: number = 0;
+    let counter: number = 0;
+    for(let i: number = 0; i < id.length; i++){
+      if(id[i] === '/' && counter < 3){
+        start = i;
       }
-      return jsxElements;
+      if(counter === 3) break;
     }
-    setTileNav(tileNavigation);
-    setTimeout(tileNavigationFill, 10);
-  }, [tilesNum])
+    return tileId = id.slice(start + skip);
+  }
 
-  // Get titles for carousel (1 to 3 months > current date)
+  function highlightTile(tileId: string): void{
+    const tileNavElements: HTMLAnchorElement[] = Array.from(document.getElementsByClassName("current-tile-title") as HTMLCollectionOf<HTMLAnchorElement>);
+    tileNavElements.forEach(element =>{
+      if(getIdFromHref(element.href, 2) !== tileId){
+        element.style.cssText = "";
+      }
+      else{
+        element.style.opacity ="1";
+      }
+    }) 
+  }
+
   useEffect(()=>{
-    async function retrieveCarouselTitles(){
-      const response = await getCarouselTitles();
-      if(typeof response === "object") setTitlesCarousel(prev => prev = response);
-    }
-    const interval:NodeJS.Timer = setInterval(retrieveCarouselTitles, 2000);
-
-    if(titlesCarousel !== null) clearInterval(interval);
+    setCarouselTitles(prev => prev = props.titles);
 
     return()=>{
-      clearInterval(interval);
-      setTitlesCarousel(prev => prev = null);
+      setCarouselTitles(prev => prev = null);
     }
-  }, []);
-  
-  // Set carousel timer
+  }, [props.titles]);
+
   useEffect(()=>{
-    tileTimer.current = setInterval(()=>{
-      carousel.current!.scrollLeft += carousel.current!.clientWidth * 0.65;
-      tileCounter.current++;
-      carouselNavFunction();
-      if(tileCounter.current === tilesNum){
-        carousel.current!.scrollLeft = 0;
-        tileCounter.current = 0;
-      }
-      tileNavigationFill();
-    }, 9000);
-
-    return ()=>{
-      clearInterval(tileTimer.current!);
+    if(carouselTitles){
+      carouselTimer.current = timer();
     }
-  }, [tilesNum]);
 
-  // Create carousel tiles
-  useCallback(():void =>{
-    setCarouselTiles(prev => prev = gameTiles());
-  }, [titlesCarousel])
+    return()=>{
+      clearInterval(carouselTimer.current!);
+    }
+  }, [carouselTitles])
 
-  function gameTiles():JSX.Element[] | undefined{
-    const myElements:JSX.Element[] | undefined = titlesCarousel?.map((title, index) =>
-      <div className="carousel-title-wrapper" key={title.id} >
-        <img alt="title" src={title.imgURL} className="carousel-title-imagebg" />
-        <Link className="carousel-title-image-wrapper" title={title.title} to={`/info?title=${title.id}`}>
-          <img alt="title" src={title.imgURL} className="carousel-title-image" />
-          <div className="carousel-title-platforms">
-            {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? <img src={xbox} alt="Xbox"/> : null}
-            {title.platforms.includes("PS4") || title.platforms.includes("PS5") ? <img src={playstation} alt="Xbox"/> : null}
-            {title.platforms.includes("PC") ? <img src={pc} alt="Xbox"/> : null}
-            {title.platforms.includes("Switch") ? <img src={nintentdo} alt="Xbox"/> : null}
-          </div>
-        </Link>
-          {document.querySelector('body')!.clientWidth >= 1200 ? 
-            <div className="carousel-title-trailer-event-trigger" onClick={videoSelected}>
-            </div> : null
-          }
-          {document.querySelector('body')!.clientWidth >= 1200 ? 
-            <iframe src={`${title.videoURL}?controls=0&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="carousel-title-trailer" 
-            title="Title Trailer" ref={trailer} /> : null
-          }
-          {document.querySelector('body')!.clientWidth >= 1700 ?
-            <div className="carousel-title-summary-wrapper">
-            <p className="carousel-title-summary">
-              {title.summary}
-            </p>
-            </div> : null
-          }
-        <CarouselNavigation content={"<"} className={"hidden left"}
-        carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
-        tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
-        carousel={carousel} setTileTimer={setTileTimer}/>
-        <CarouselNavigation content={">"} className={"right"}
-        carouselNavFunction={carouselNavFunction} tileNavigationFill={tileNavigationFill}
-        tileCounter={tileCounter} tileTimer={tileTimer} tilesNum={tilesNum}
-        carousel={carousel} setTileTimer={setTileTimer}/>
-        <div className="tiles-navigation">
-          {tileNav}
-        </div>
-      </div>)
-    return myElements;
+  function clickHandler(e: React.MouseEvent<HTMLAnchorElement>){
+    e.preventDefault();
+    clearInterval(carouselTimer.current!);
+    tileCounter.current = Number(e.currentTarget.id);
+    let tileId: string = getIdFromHref(e.currentTarget.href, 2);
+    setTimeout(()=>{
+      document.getElementById(tileId)?.scrollIntoView({
+        behavior: "smooth"
+      });
+      highlightTile(tileId);
+      carouselTimer.current = timer();
+    }, 100);
+
   }
 
   return(
-    <div id="home-page-carousel" ref={carousel}>
-      {titlesCarousel === null ? <Loader /> : carouselTiles}
+    <div id="carousel-navigation">
+      {carouselTitles ? carouselTitles.map((title, index) =>
+      <a className="current-tile-title" href={`#tile${index}`} id={`${index}`} onClick={clickHandler} key={`achor${index}`}>
+        {title?.gameTitle}
+      </a>
+      ): null}
     </div>
+  );
+}
+
+function Carousel(props: {titles: TypeGame[] | null}){ 
+  const [carouselTitles, setCarouselTitles] = useState<typeof props.titles>(null);
+
+  useEffect(()=>{
+    setCarouselTitles(prev => prev = props.titles);
+
+    return()=>{
+      setCarouselTitles(prev => prev = null);
+    }
+  }, [props.titles]);
+
+  return(
+    <section id="home-page-carousel">
+      {carouselTitles ? 
+      <div id="home-page-carousel-wrapper">
+        {carouselTitles.map((title, index) =>
+          <div className="carousel-tile" id={`tile${index}`} key={`tile-key${index}`}>
+            <img src={title?.imgURL} alt="background" className="carousel-tile-bg" key={`bg-key${index}`}/>
+            <Link to={`/info?title=${title?.id}`} className="carousel-tile-image">
+              <img src={title?.imgURL} alt="Title" key={`image-key${index}`} />
+            </Link>
+          </div>
+        )}
+      </div>: <Loader />}
+    </section>
   );
 }
 
@@ -348,113 +181,95 @@ type CategoryNavigationProps = {
   );
 }
 
-// All categories
-function Categories(){
-  // Variables
-  const [allCategories, setAllCategories] = useState<JSX.Element[] | null>(null);
-  const genres = useRef<string[] | null>(null);
-  const [titles, setTitles] = useState<[{tags: string[], id: string,
-                                        title: string, imgURL: string}] | null>(null);
+function Categories(props: {titles: TypeGame[] | null}){
+  const games = useRef<TypeGame[] | null>(null);
+  const genres = useRef<string[]>([]);
 
-  function storeGenres():void{
-    genres.current![0] = titles![0].tags[0];
-    titles!.forEach((title, index) =>{
-      for(let i = 1; i < title.tags.length; i++){
-        if(!genres.current!.includes(title.tags[i])){
-          genres.current!.push(title.tags[i]);
-        }
-      }
-    });
-  }
-
-  useCallback(storeGenres, [titles])
-
-  // Check if device is touch, if so enable scroll.
-  function ifTouch(){
-    const allCategories = Array.from(document.getElementsByClassName("home-page-genre") as HTMLCollectionOf<HTMLDivElement>);
-    allCategories.forEach(element =>{
-      element.style.overflowX = "scroll";
-    })
-  }
-
-  // Get all titles
   useEffect(()=>{
-    async function getGames(){
-      const response = await retrieveGames();
-      if(typeof response === "object") setTitles(prev => prev = response);
+    games.current = props.titles;
+    return()=>{
+      games.current = null;
     }
-    const intervals = setInterval(getGames, 2000);
+  }, [props.titles]);
 
-    if(titles){
-      clearInterval(intervals);
+  useEffect(()=>{
+    if(games.current){
+      for(let i: number = 0; i < games.current.length; i++){
+        games.current[i]?.tags.forEach(genre =>{
+          if(!genres.current.includes(genre)){
+            genres.current.push(genre);
+          }
+        })
+      }
     }
+    console.log(genres.current);
 
     return()=>{
-      clearInterval(intervals);
-      setTitles(prev => prev = null);
-      genres.current = null;
-    }    
-  }, [])
-
-  // Hide category navigations (< >) if container can't be scrolled.
-  useEffect(()=>{
-    const allCategories = Array.from(document.getElementsByClassName("home-page-genre") as HTMLCollectionOf<HTMLDivElement>);
-    allCategories.forEach(element =>{
-      if(element.scrollWidth > element.offsetWidth){
-        element.parentElement!.children.item(3)!.classList.remove("hidden");
-      }
-    });
-
-    return ()=>{
-      allCategories.forEach(element =>{
-        element.parentElement!.children.item(3)!.classList.add("hidden");
-      });
+      genres.current = [];
     }
-  }, [titles])
-
-  function gameGenres():JSX.Element[]{
-    const allgenres:JSX.Element[] = genres.current!.map((genre, index) =>
-      <div key={`genre${index}`} className="home-page-genre-container">
-        <h2 className="home-page-section-title">{genre}</h2>
-        <div className="home-page-genre" onTouchStart={ifTouch}>
-          {titles!.map(title =>
-          title.tags.includes(genre) ? 
-          <Link key={title.id} className="genre-titles" title={title.title} to={`/info?title=${title.id}`}>
-            <img className="genre-title-image" src={title.imgURL} alt="Title" />
-          </Link> : null)}
-        </div>
-        <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
-        <CategoryNavigation className={"category-navigation category-right hidden"} content={">"} />
-      </ div>);
-
-      return allgenres;
-  }
-
-  // Create elements for each genre
-  useCallback(()=>{
-    setAllCategories(prev => prev = gameGenres());
-  }, [titles])
+  }, [props.titles]);
 
   return(
-    <div id="home-page-categories">
-      {titles && allCategories ? allCategories : <Loader />}
-    </div>
+    <section id="home-page-categories">
+      {games.current?
+      <div id="home-page-categories-wrapper">
+        {genres.current.map((genre, index) =>
+          <div className="home-page-category-wrapper" key={`categories${index}`}>
+            <span className="home-page-category">{genre}</span>
+          </div>
+        )}
+      </div> : <Loader />}
+    </section>
   );
 }
 
 // Home Page
 function HomePage(){
+  const [isAwake, setIsAwake] = useState<boolean | undefined>(false);
+  const [carouselTitles, setCarouselTiles] = useState<TypeGame[] | null>(null);
+  const [allTitles, setAllTitles] = useState<TypeGame[] | null>(null);
+ 
   useEffect(()=>{
-    wakeUp();
-  }, []);
+    async function checkServer(){
+      const response = await wakeUp();
+      setIsAwake(prev => prev = response);
+    }
+    checkServer();
+  });
+
+  useEffect(()=>{
+    async function retrieveCarouselTitles(){
+      const response = await getCarouselTitles();
+      setCarouselTiles(prev => prev = response);
+    }
+    if(isAwake) retrieveCarouselTitles();
+
+    return()=>{
+      setCarouselTiles(prev => prev = null);
+    }
+  }, [isAwake]);
+
+  useEffect(()=>{
+    async function getGames(){
+      const response = await retrieveGames();
+      setAllTitles(prev => prev = response);
+    }
+     if(isAwake) getGames();
+
+    return()=>{
+      setAllTitles(prev => prev = null);
+      
+    }    
+  }, [isAwake])
 
   return(
     <main id="home-page-bg">
       <div id="home-page">
         <Header item={<SearchRedirect />}/>
-        <Carousel />
-        <Categories />
-        </div>
+        <Carousel titles={carouselTitles} />
+        <CarouselNavigation titles={carouselTitles} />
+        <Categories titles={allTitles} />
+      </div>
     </main>
   );
 }
