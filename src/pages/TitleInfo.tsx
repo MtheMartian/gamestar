@@ -12,6 +12,7 @@ import nintentdo from '../images/switch.png';
 import {CategoryNavigation} from '../pages/Home';
 import { getTitleInfo, getReviews, getSimilarGames, wakeUp } from '../js/admin';
 import Loader from '../general-components/PageLoader';
+import { TypeGame, TypeReview } from '../js/types';
 
 let gameId: string = "";
 
@@ -26,33 +27,16 @@ function SearchRedirect(){
   );
 }
 
-// General Types
-type TitleType = {
-  game: {
-    platforms: string[], 
-    imgURL: string,
-    consoleLinks: {xbox: string, pStore: string, nintendo: string},
-    pcLinks: {steam: string, epicStore: string}, summary: string,
-    releaseDate: string,
-    videoURL: string,
-    gameplayVid: string,
-    id: string,
-    title: string
-  } | null
-}
-
-export type Title = TitleType["game"];
-
-function Card({game} : TitleType){
-  const [title, setTitle] = useState<Title | null>(null);
+function Card(props: {game: TypeGame}){
+  const [title, setTitle] = useState<TypeGame | null>(null);
 
   useEffect(()=>{
-    setTitle(prev => prev = game);
+    setTitle(prev => prev = props.game);
 
     return()=>{
       setTitle(prev => prev = null);
     }
-  }, [])
+  }, [props.game])
 
   return(
     <section id="card-container">
@@ -79,7 +63,7 @@ function Card({game} : TitleType){
   );
 }
 
-function Discuss(){
+function Discuss(props: {reviews: TypeReview[] | null}){
   // Variables
   const nameValue = useRef<HTMLInputElement | null>(null);
   const saveCheckBox = useRef<HTMLInputElement | null>(null);
@@ -88,11 +72,7 @@ function Discuss(){
 
   const review = useRef<HTMLTextAreaElement | null>(null);
 
-  const [retrievedReviews, setRetrievedReviews] = useState<[{
-    displayName: string,
-    gameReview: string,
-    whenPosted: string
-  }] | null>(null);
+  const [retrievedReviews, setRetrievedReviews] = useState<TypeReview[] | null>(null);
  ;
   const [_name, set_Name] = useState<any>("");
 
@@ -134,22 +114,12 @@ function Discuss(){
   }, [])
 
   useEffect(()=>{
-    async function retrieveReviews(){
-      const response = await getReviews(gameId);
-      if(response.message === "Success") setRetrievedReviews(prev => prev = response.data);
-    }
-
-    const intervals = setInterval(retrieveReviews, 2000);
-
-    if(retrievedReviews){
-      clearInterval(intervals);
-    }
+    setRetrievedReviews(prev => prev = props.reviews);
 
     return()=>{
-      clearInterval(intervals);
       setRetrievedReviews(prev => prev = null);
     }
-  }, [])
+  }, [props.reviews])
 
   async function postReview(e:React.MouseEvent){
     e.preventDefault();
@@ -206,16 +176,16 @@ function Discuss(){
   );
 }
 
-function Videos({game} : TitleType){
-  const [title, setTitle] = useState<Title | null>(null);
+function Videos(props : {game: TypeGame, reviews: TypeReview[] | null}){
+  const [title, setTitle] = useState<TypeGame | null>(null);
 
   useEffect(()=>{
-    setTitle(prev => prev = game);
+    setTitle(prev => prev = props.game);
 
     return()=>{
       setTitle(prev => prev = null);
     }
-  }, [])
+  }, [props.game])
 
   return(
     <section id="title-info-reviews-videos">
@@ -227,14 +197,15 @@ function Videos({game} : TitleType){
         : null}
       </div> 
       : <Loader />}
-      <Discuss />
+      <Discuss reviews={props.reviews} />
     </section>
   )
 }
 
-function SimilarTitles(){
-  const [titles, setTitles] = useState<[{id: string, imgURL: string, title: string}] | null>(null);
+function SimilarTitles(props: {games: TypeGame[] | null}){
+  
   const similarTitles = useRef<HTMLDivElement | null>(null);
+  const [titles, setTitles] = useState<TypeGame[] | null>(null);
 
   // Check if device is touch, if so enable scroll.
   function ifTouch(){
@@ -244,23 +215,12 @@ function SimilarTitles(){
   }
 
   useEffect(()=>{
-    async function getTheGames(){
-      const response = await getSimilarGames(gameId);
-      if(typeof response === "object") setTitles(prev => prev = response);
-    }
-
-    const intervals = setInterval(getTheGames, 2000);
-
-    if(titles){
-      clearInterval(intervals);
-    }
+    setTitles(prev => prev = props.games);
 
     return()=>{
-      clearInterval(intervals);
       setTitles(prev => prev = null);
     }
-
-  }, [])
+  }, [props.games])
 
   useEffect(()=>{
     if(similarTitles.current){
@@ -276,8 +236,8 @@ function SimilarTitles(){
       {titles? 
       <div id="similar-titles-wrapper" onTouchStart={ifTouch} ref={similarTitles}>
         {titles.map(similarTitle=>
-          <a key={similarTitle.id} className="genre-titles" title={similarTitle.title} href={`/info?title=${similarTitle.id}`}>
-            <img className="genre-title-image" src={similarTitle.imgURL} alt="Title" />
+          <a key={similarTitle!.id} className="genre-titles" title={similarTitle!.gameTitle} href={`/info?title=${similarTitle!.id}`}>
+            <img className="genre-title-image" src={similarTitle!.imgURL} alt="Title" />
           </a>
         )}
       </div> 
@@ -289,10 +249,20 @@ function SimilarTitles(){
 }
 
 function TitleInfo(){
-  const [title, setTitle] = useState<Title | null>(null);
+  const [title, setTitle] = useState<TypeGame>(null);
+  const [titles, setTitles] = useState<TypeGame[] | null>(null);
+  const [reviews, setReviews] = useState<TypeReview[] | null>(null);
+  const [isAwake, setIsAwake] = useState<boolean | undefined>(false);
+  
+  useEffect(()=>{
+    async function checkServer(){
+      const response = await wakeUp();
+      setIsAwake(prev => prev = response);
+    }
+    checkServer();
+  });
 
-  useEffect(wakeUp, []);
-
+  // Get the requested title
   useEffect(()=>{
     const url: string = window.location.href.toLowerCase();
     
@@ -309,29 +279,57 @@ function TitleInfo(){
 
     async function titleInfo(){
       const response = await getTitleInfo(gameId);
-      if(typeof response === "object") setTitle(prev => prev = response);
+      setTitle(prev => prev = response);
     }
 
-    const intervals = setInterval(titleInfo, 2000);
-
-    if(title){
-      clearInterval(intervals);
+    if(isAwake){
+      titleInfo();
     }
 
     return()=>{
-      clearInterval(intervals);
       setTitle(prev => prev = null);
     }
-  }, [])
+  }, [isAwake])
 
+  
+  useEffect(()=>{
+    async function getTheGames(){
+      const response = await getSimilarGames(gameId);
+      if(typeof response === "object") setTitles(prev => prev = response);
+    }
+
+    if(isAwake){
+        getTheGames();
+    }
+
+    return()=>{
+      setTitles(prev => prev = null);
+    }
+
+  }, [isAwake])
+
+  useEffect(()=>{
+    async function retrieveReviews(){
+      const response = await getReviews(gameId);
+      if(response.message === "Success") setReviews(prev => prev = response.data);
+    }
+
+    if(isAwake){
+      retrieveReviews();
+    }
+
+    return()=>{
+      setReviews(prev => prev = null);
+    }
+  }, [isAwake])
 
   return(
     <main id="title-info-page-bg">
       <div id="title-info-page">
         <Header item={<SearchRedirect />}/>
         <Card game={title} />
-        <Videos game={title}/>
-        <SimilarTitles />
+        <Videos game={title} reviews={reviews} />
+        <SimilarTitles games={titles} />
       </div>
     </main>
   )
