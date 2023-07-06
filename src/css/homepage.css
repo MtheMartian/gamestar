@@ -28,6 +28,47 @@ button{
   position: relative;
 }
 
+#home-page-categories-wrapper{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.home-page-category-wrapper{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items:flex-start;
+  width: 100%;
+}
+
+.home-page-category-titles-wrapper{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-width: 100%;
+  overflow-x: auto;
+  border: 1px solid brown;
+}
+
+.genre-pages{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border: 1px solid blue;
+}
+
+.general-title-display{
+  min-height: 5rem;
+}
+
+.general-title-display img{
+  width: 100%;
+  object-fit: contain;
+}
+
 .category-navigation{
   position: absolute;
   color: aliceblue;

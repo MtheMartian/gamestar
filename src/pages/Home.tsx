@@ -30,19 +30,26 @@ function CarouselNavigation(props: {titles: TypeGame[] | null}){
   const carouselTimer = useRef<NodeJS.Timer | null>(null);
 
   function timer():NodeJS.Timer{
-    const carouselTimer: NodeJS.Timer = setInterval(()=>{
+    const _carouselTimer: NodeJS.Timer = setInterval(()=>{
       setTimeout(()=>{
-        tileCounter.current++;
-        if(tileCounter.current > carouselTitles!.length - 1){
+        if(tileCounter.current === carouselTitles!.length - 1){
           tileCounter.current = 0;
+          document.getElementById("home-page-carousel-wrapper")!.scrollTo({
+            left: 0,
+            behavior: "smooth"
+          });
+          clearInterval(carouselTimer.current!);
+          carouselTimer.current = timer();
         }
-        document.getElementById(`tile${tileCounter.current}`)?.scrollIntoView({
-          behavior: "smooth"
-        });
+        else{
+          document.getElementById("home-page-carousel-wrapper")!.scrollLeft! += 
+          document.getElementById(`tile${tileCounter.current}`)!.clientWidth!;
+          tileCounter.current++;
+        }
         highlightTile(`tile${tileCounter.current}`);
       }, 100);
     }, 9000);
-    return carouselTimer;
+    return _carouselTimer;
   }
 
   function getIdFromHref(id: string, skip: number): string{
@@ -80,6 +87,7 @@ function CarouselNavigation(props: {titles: TypeGame[] | null}){
 
   useEffect(()=>{
     if(carouselTitles){
+      highlightTile(`tile0`);
       carouselTimer.current = timer();
     }
 
@@ -95,7 +103,9 @@ function CarouselNavigation(props: {titles: TypeGame[] | null}){
     let tileId: string = getIdFromHref(e.currentTarget.href, 2);
     setTimeout(()=>{
       document.getElementById(tileId)?.scrollIntoView({
-        behavior: "smooth"
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest"
       });
       highlightTile(tileId);
       carouselTimer.current = timer();
@@ -115,21 +125,21 @@ function CarouselNavigation(props: {titles: TypeGame[] | null}){
 }
 
 function Carousel(props: {titles: TypeGame[] | null}){ 
-  const [carouselTitles, setCarouselTitles] = useState<typeof props.titles>(null);
+  // const [carouselTitles, setCarouselTitles] = useState<typeof props.titles>(null);
 
-  useEffect(()=>{
-    setCarouselTitles(prev => prev = props.titles);
+  // useEffect(()=>{
+  //   setCarouselTitles(prev => prev = props.titles);
 
-    return()=>{
-      setCarouselTitles(prev => prev = null);
-    }
-  }, [props.titles]);
+  //   return()=>{
+  //     setCarouselTitles(prev => prev = null);
+  //   }
+  // }, [props.titles]);
 
   return(
     <section id="home-page-carousel">
-      {carouselTitles ? 
+      {props.titles ? 
       <div id="home-page-carousel-wrapper">
-        {carouselTitles.map((title, index) =>
+        {props.titles.map((title, index) =>
           <div className="carousel-tile" id={`tile${index}`} key={`tile-key${index}`}>
             <img src={title?.imgURL} alt="background" className="carousel-tile-bg" key={`bg-key${index}`}/>
             <Link to={`/info?title=${title?.id}`} className="carousel-tile-image">
@@ -182,40 +192,87 @@ type CategoryNavigationProps = {
 }
 
 function Categories(props: {titles: TypeGame[] | null}){
-  const games = useRef<TypeGame[] | null>(null);
-  const genres = useRef<string[]>([]);
+  const [titles, setTitles] = useState<TypeGame[] | null>(null);
+  const [genres, setGenres] = useState<string[]>([]);
 
   useEffect(()=>{
-    games.current = props.titles;
-    return()=>{
-      games.current = null;
-    }
-  }, [props.titles]);
-
-  useEffect(()=>{
-    if(games.current){
-      for(let i: number = 0; i < games.current.length; i++){
-        games.current[i]?.tags.forEach(genre =>{
-          if(!genres.current.includes(genre)){
-            genres.current.push(genre);
+    if(props.titles){
+      let allGenres: string[] = [];
+      for(let i: number = 0; i < props.titles.length; i++){
+        props.titles[i]?.tags.forEach(genre =>{
+          if(!allGenres.includes(genre)){
+            allGenres.push(genre);
           }
         })
       }
+      setGenres(prev => prev = allGenres);
+      setTitles(prev => prev = props.titles);
     }
-    console.log(genres.current);
 
     return()=>{
-      genres.current = [];
+      setGenres(prev => prev = []);
+      setTitles(prev => prev = null);
     }
   }, [props.titles]);
 
+  function returnPages(genre: string, _titles: typeof titles): JSX.Element[]{
+    let genrePages: JSX.Element[] = [];
+    let pageContents: JSX.Element[] = [];
+
+    if(_titles){
+      let titlesGenre: TypeGame[] = [];
+      for(let i: number = 0; i < _titles.length; i++){
+        if(_titles[i]!.tags.includes(genre)) titlesGenre.push(_titles[i]);
+      }
+      let numberOfPages: number = Math.floor(titlesGenre.length / 5);
+      console.log(titlesGenre);
+      if(titlesGenre.length % 5 !== 0) numberOfPages++;
+      console.log(numberOfPages);
+
+      let counter: number = 0;
+      let lastIndex: number = 0;
+
+      for(let i: number = 0; i < titlesGenre.length; i++){
+        pageContents.push(
+          <Link to={`/info?title=${titlesGenre[i]!.id}`} className="general-title-display">
+            <img src={titlesGenre[i]!.imgURL} alt="Title" />
+          </Link> 
+        )
+      }
+
+      for(let i: number = 0; i < numberOfPages; i++){
+        genrePages.push(
+          <div id={`${genre}-page${i}`} className="genre-pages">
+            {(function(): JSX.Element[]{
+              let currentTitles: JSX.Element[] = [];
+              for(let j: number = lastIndex; j < titlesGenre.length; j++){
+                if(counter === 5){
+                  lastIndex = j + 1;
+                  counter = 1;
+                  break;
+                }
+                currentTitles.push(pageContents[j]);
+                counter++;
+              }
+              return currentTitles;
+            })()}
+          </div>
+        )
+      }  
+    }
+    return genrePages;
+  }
+
   return(
     <section id="home-page-categories">
-      {games.current?
+      {props.titles?
       <div id="home-page-categories-wrapper">
-        {genres.current.map((genre, index) =>
+        {genres.map((genre, index) =>
           <div className="home-page-category-wrapper" key={`categories${index}`}>
             <span className="home-page-category">{genre}</span>
+            <div className="home-page-category-titles-wrapper">
+              {returnPages(genre, titles)}
+            </div> 
           </div>
         )}
       </div> : <Loader />}
