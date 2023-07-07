@@ -119,6 +119,23 @@ body{
   100% {height: 0%;}
 }
 
+/*----- Title Navs -----*/
+.titles-navigation{
+  font-weight: 800;
+  color: rgb(194, 194, 194);
+  height: 100%;
+  text-align: center;
+  position: absolute;
+}
+
+.right-button{
+  right: 2rem;
+}
+
+.left-button{
+  left: 1rem;
+}
+
 /*------ Goodies ---------*/
 .hidden{
   display: none !important;

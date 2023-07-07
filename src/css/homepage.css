@@ -42,31 +42,43 @@ button{
   justify-content: center;
   align-items:flex-start;
   width: 100%;
+  position: relative;
 }
 
 .home-page-category-titles-wrapper{
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  min-width: 100%;
-  overflow-x: auto;
+  width: 100%;
+  overflow: hidden;
   border: 1px solid brown;
+  height: 30rem;
 }
 
 .genre-pages{
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
+  min-width: 100%;
   border: 1px solid blue;
+  gap: 3rem;
+  padding-left: 3rem;
 }
 
 .general-title-display{
-  min-height: 5rem;
+  border: 1px solid green;
 }
 
 .general-title-display img{
-  width: 100%;
-  object-fit: contain;
+  outline: 3px solid rgba(255, 255, 255, 0.3);
+  min-width: calc(1vw + 500px);
+  max-width: calc(1vw + 500px);
+  border-radius: 10px;
+  box-sizing: border-box;
+  transition: 300ms transform, 300ms outline;
+}
+
+.general-title-display img:hover{
+  transform: scale(1.03);
+  outline: 3px solid rgba(255, 255, 255, 1);
 }
 
 .category-navigation{

@@ -1,13 +1,9 @@
 import React from 'react';
-import {useRef, useEffect, useState, useMemo, useCallback} from 'react';
+import {useRef, useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import '../css/homepage.css';
 import '../css/general.css';
 import '../css/carousel.css';
-import xbox from '../images/xbox.png';
-import playstation from '../images/ps.png';
-import pc from '../images/pc.png';
-import nintentdo from '../images/switch.png';
 import Header from '../general-components/header';
 import { getCarouselTitles, retrieveGames, wakeUp} from '../js/admin';
 import Loader from '../general-components/PageLoader';
@@ -53,7 +49,6 @@ function CarouselNavigation(props: {titles: TypeGame[] | null}){
   }
 
   function getIdFromHref(id: string, skip: number): string{
-    let tileId: string = "";
     let start: number = 0;
     let counter: number = 0;
     for(let i: number = 0; i < id.length; i++){
@@ -62,7 +57,7 @@ function CarouselNavigation(props: {titles: TypeGame[] | null}){
       }
       if(counter === 3) break;
     }
-    return tileId = id.slice(start + skip);
+    return id.slice(start + skip);
   }
 
   function highlightTile(tileId: string): void{
@@ -125,16 +120,6 @@ function CarouselNavigation(props: {titles: TypeGame[] | null}){
 }
 
 function Carousel(props: {titles: TypeGame[] | null}){ 
-  // const [carouselTitles, setCarouselTitles] = useState<typeof props.titles>(null);
-
-  // useEffect(()=>{
-  //   setCarouselTitles(prev => prev = props.titles);
-
-  //   return()=>{
-  //     setCarouselTitles(prev => prev = null);
-  //   }
-  // }, [props.titles]);
-
   return(
     <section id="home-page-carousel">
       {props.titles ? 
@@ -191,9 +176,97 @@ type CategoryNavigationProps = {
   );
 }
 
+function TitlesNavigation(props: {_genre: string, content: string, numberPages: number, currentElement: string}){
+  function hideButton(e: React.MouseEvent<HTMLButtonElement>){
+    const element1: HTMLElement | null = document.getElementById(`${props._genre}-left`);
+    const element2: HTMLElement | null = document.getElementById(`${props._genre}-right`);
+    const parentElement: HTMLElement | null = document.getElementById(props.currentElement);
+    if(props.content === ">"){
+      document.getElementById(`${props._genre}-left`)!.classList.remove("hidden");
+      if(parentElement!.scrollLeft >= element2!.clientWidth * (props.numberPages - 1)){
+        e.currentTarget.classList.add("hidden");
+      }
+    }
+    else if(props.content === "<"){
+      document.getElementById(`${props._genre}-right`)!.classList.remove("hidden");
+      if(parentElement!.scrollLeft <= element2!.clientWidth){
+        e.currentTarget.classList.add("hidden");
+      }
+    } 
+  }
+
+  function changePage(e: React.MouseEvent<HTMLButtonElement>): void{
+    if(props.content === ">"){
+      hideButton(e);
+      document.getElementById(props.currentElement)!.scrollLeft +=
+      document.querySelector(".genre-pages")!.clientWidth;
+    }
+    else if(props.content === "<"){
+      hideButton(e);
+      document.getElementById(props.currentElement)!.scrollLeft -=
+      document.querySelector(".genre-pages")!.clientWidth;
+    }
+  }
+
+  return(
+    <button className={props.content === ">" ? "titles-navigation right-button" : "titles-navigation left-button"} 
+            onClick={changePage} id={props.content === ">" ? `${props._genre}-right` : `${props._genre}-left`}>
+      {props.content}
+    </button>
+  );
+}
+
 function Categories(props: {titles: TypeGame[] | null}){
   const [titles, setTitles] = useState<TypeGame[] | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
+  const numPages = useRef<number>(0);
+
+  function returnPages(genre: string, _titles: typeof titles): JSX.Element[]{
+    let genrePages: JSX.Element[] = [];
+    if(_titles){
+      let pageContents: JSX.Element[] = [];
+      let titlesGenre: TypeGame[] = [];
+      for(let i: number = 0; i < _titles.length; i++){
+        if(_titles[i]!.tags.includes(genre)) titlesGenre.push(_titles[i]);
+      }
+
+      let numberOfPages: number = Math.floor(titlesGenre.length / 5);
+      if(titlesGenre.length % 5 !== 0) numberOfPages++;
+      numPages.current = numberOfPages;
+
+      let counter: number = 0;
+      let lastIndex: number = 0;
+
+      for(let i: number = 0; i < titlesGenre.length; i++){
+        pageContents.push(
+          <Link to={`/info?title=${titlesGenre[i]!.id}`} className="general-title-display" key={`genre-title-key${i}`}>
+            <img src={titlesGenre[i]!.imgURL} alt="Title" />
+          </Link> 
+        )
+      }
+
+      for(let i: number = 0; i < numberOfPages; i++){
+        genrePages.push(
+          <div id={`${genre}-page${i}`} className="genre-pages" key={`genre-page-key${i}`}>
+            {(function(): JSX.Element[]{
+              let currentTitles: JSX.Element[] = [];
+              for(let j: number = lastIndex; j < titlesGenre.length; j++){
+                if(counter === 3){
+                  lastIndex = j;
+                  counter = 0;
+                  break;
+                }
+                currentTitles.push(pageContents[j]);
+                counter++;
+              }
+              return currentTitles;
+            })()}
+          </div>
+        )
+      }  
+    }
+    return genrePages;
+  }
 
   useEffect(()=>{
     if(props.titles){
@@ -215,54 +288,6 @@ function Categories(props: {titles: TypeGame[] | null}){
     }
   }, [props.titles]);
 
-  function returnPages(genre: string, _titles: typeof titles): JSX.Element[]{
-    let genrePages: JSX.Element[] = [];
-    let pageContents: JSX.Element[] = [];
-
-    if(_titles){
-      let titlesGenre: TypeGame[] = [];
-      for(let i: number = 0; i < _titles.length; i++){
-        if(_titles[i]!.tags.includes(genre)) titlesGenre.push(_titles[i]);
-      }
-      let numberOfPages: number = Math.floor(titlesGenre.length / 5);
-      console.log(titlesGenre);
-      if(titlesGenre.length % 5 !== 0) numberOfPages++;
-      console.log(numberOfPages);
-
-      let counter: number = 0;
-      let lastIndex: number = 0;
-
-      for(let i: number = 0; i < titlesGenre.length; i++){
-        pageContents.push(
-          <Link to={`/info?title=${titlesGenre[i]!.id}`} className="general-title-display">
-            <img src={titlesGenre[i]!.imgURL} alt="Title" />
-          </Link> 
-        )
-      }
-
-      for(let i: number = 0; i < numberOfPages; i++){
-        genrePages.push(
-          <div id={`${genre}-page${i}`} className="genre-pages">
-            {(function(): JSX.Element[]{
-              let currentTitles: JSX.Element[] = [];
-              for(let j: number = lastIndex; j < titlesGenre.length; j++){
-                if(counter === 5){
-                  lastIndex = j + 1;
-                  counter = 1;
-                  break;
-                }
-                currentTitles.push(pageContents[j]);
-                counter++;
-              }
-              return currentTitles;
-            })()}
-          </div>
-        )
-      }  
-    }
-    return genrePages;
-  }
-
   return(
     <section id="home-page-categories">
       {props.titles?
@@ -270,8 +295,12 @@ function Categories(props: {titles: TypeGame[] | null}){
         {genres.map((genre, index) =>
           <div className="home-page-category-wrapper" key={`categories${index}`}>
             <span className="home-page-category">{genre}</span>
-            <div className="home-page-category-titles-wrapper">
+            <div className="home-page-category-titles-wrapper" id={`${genre}-titles-wrapper${index}`}>
               {returnPages(genre, titles)}
+              <TitlesNavigation currentElement={`${genre}-titles-wrapper${index}`} _genre={genre}
+                numberPages={numPages.current} content="<" />
+              <TitlesNavigation currentElement={`${genre}-titles-wrapper${index}`} _genre={genre}
+                numberPages={numPages.current} content=">" />
             </div> 
           </div>
         )}
