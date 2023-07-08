@@ -122,10 +122,18 @@ body{
 /*----- Title Navs -----*/
 .titles-navigation{
   font-weight: 800;
+  font-size: calc(1.5vw + 1rem);
   color: rgb(194, 194, 194);
   height: 100%;
   text-align: center;
   position: absolute;
+  opacity: 0;
+  z-index: 1;
+  transition: 300ms opacity;
+}
+
+.right-button:hover, .left-button:hover{
+  opacity: 1;
 }
 
 .right-button{

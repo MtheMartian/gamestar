@@ -87,13 +87,14 @@
 #card-title-release-date{
   position: absolute;
   bottom: -3.5rem;
-  right: 5%;
-  width: 20%;
   min-height: 50px;
   text-align: start;
   color: aliceblue;
   font-weight: 500;
   font-size: calc(0.5vw + 0.7rem);
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
 }
 
 /* Media Queries */
@@ -115,15 +116,6 @@
 
   #card-title-platforms{
     flex-direction: row;
-  }
-}
-
-@media only screen and (max-width: 910px){
-  #card-title-release-date{
-    width: 45%;
-    right: 0;
-    text-align: end;
-    margin-right: 25px;
   }
 }
 

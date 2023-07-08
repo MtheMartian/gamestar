@@ -181,15 +181,16 @@ function TitlesNavigation(props: {_genre: string, content: string, numberPages: 
     const element1: HTMLElement | null = document.getElementById(`${props._genre}-left`);
     const element2: HTMLElement | null = document.getElementById(`${props._genre}-right`);
     const parentElement: HTMLElement | null = document.getElementById(props.currentElement);
+    const page: HTMLElement | null = document.querySelector(".genre-pages");
     if(props.content === ">"){
       document.getElementById(`${props._genre}-left`)!.classList.remove("hidden");
-      if(parentElement!.scrollLeft >= element2!.clientWidth * (props.numberPages - 1)){
+      if(parentElement!.scrollLeft >= page!.clientWidth * (props.numberPages - 1)){
         e.currentTarget.classList.add("hidden");
       }
     }
     else if(props.content === "<"){
       document.getElementById(`${props._genre}-right`)!.classList.remove("hidden");
-      if(parentElement!.scrollLeft <= element2!.clientWidth){
+      if(parentElement!.scrollLeft <= 0){
         e.currentTarget.classList.add("hidden");
       }
     } 
@@ -197,16 +198,24 @@ function TitlesNavigation(props: {_genre: string, content: string, numberPages: 
 
   function changePage(e: React.MouseEvent<HTMLButtonElement>): void{
     if(props.content === ">"){
-      hideButton(e);
       document.getElementById(props.currentElement)!.scrollLeft +=
       document.querySelector(".genre-pages")!.clientWidth;
+      hideButton(e);
     }
     else if(props.content === "<"){
-      hideButton(e);
       document.getElementById(props.currentElement)!.scrollLeft -=
       document.querySelector(".genre-pages")!.clientWidth;
+      hideButton(e);
     }
   }
+
+  useEffect(()=>{
+    if(props.numberPages <= 1){
+      document.getElementById(`${props._genre}-left`)!.classList.add("hidden");
+      document.getElementById(`${props._genre}-right`)!.classList.add("hidden");
+    }
+    document.getElementById(`${props._genre}-left`)!.classList.add("hidden");
+  }, [])
 
   return(
     <button className={props.content === ">" ? "titles-navigation right-button" : "titles-navigation left-button"} 

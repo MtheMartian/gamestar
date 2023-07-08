@@ -58,7 +58,10 @@ function Card(props: {game: TypeGame}){
         </div>
       </div> 
       : <Loader />}
-      <div id="card-title-release-date">Release Date: {title !== null && title.releaseDate !== "" ? title.releaseDate : "N/A"}</div>
+      <div id="card-title-release-date">
+        <span>{title !== null ? title!.gameTitle : null}</span>
+        <span>Release Date: {title !== null && title.releaseDate !== "" ? title.releaseDate : "N/A"}</span>
+      </div>
     </section>
   );
 }
