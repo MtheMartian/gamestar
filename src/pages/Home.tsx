@@ -137,52 +137,11 @@ function Carousel(props: {titles: TypeGame[] | null}){
   );
 }
 
-// Navigation button for categories
-type CategoryNavigationProps = {
-  content: string,
-  className: string,
-}
-
- export function CategoryNavigation({content, className}: CategoryNavigationProps){
-  function leftNav(event: React.MouseEvent<HTMLButtonElement>){
-    const relative = event.currentTarget.parentElement!.children.item(1);
-    const parent = event.currentTarget!.parentElement;
-    relative!.scrollLeft -= 300;
-    if(relative!.scrollLeft <= relative!.clientWidth * 0.1){
-      parent!.children.item(2)!.classList.add("hidden");
-      parent!.children.item(3)!.classList.remove("hidden");
-    }
-    else{
-      parent!.children.item(3)!.classList.remove("hidden");
-    }
-  }
-
-  function rightNav(event: React.MouseEvent<HTMLButtonElement>){
-    const relative = event.currentTarget.parentElement!.children.item(1);
-    const parent = event.currentTarget.parentElement;
-    relative!.scrollLeft += 300;
-    if(relative!.scrollLeft > 0){
-      parent!.children.item(2)!.classList.remove("hidden");
-    }
-    if(relative!.scrollLeft >= relative!.scrollWidth - relative!.clientWidth){
-      parent!.children.item(3)!.classList.add("hidden");
-    }
-  }
-
-  return(
-    <button className={className} onClick={content === "<" ? leftNav : rightNav}>
-      {content}
-    </button>
-  );
-}
-
-function TitlesNavigation(props: {_genre: string, content: string, numberPages: number, currentElement: string}){
+export function TitlesNavigation(props: {_genre: string, content: string, numberPages: number, currentElement: string}){
   function hideButton(e: React.MouseEvent<HTMLButtonElement>){
-    const element1: HTMLElement | null = document.getElementById(`${props._genre}-left`);
-    const element2: HTMLElement | null = document.getElementById(`${props._genre}-right`);
     const parentElement: HTMLElement | null = document.getElementById(props.currentElement);
     const page: HTMLElement | null = document.querySelector(".genre-pages");
-    const pageLength: number = (page!.clientWidth - (page!.clientWidth * 0.4)) * (props.numberPages - 1);
+    const pageLength: number = (page!.clientWidth - (page!.clientWidth * 0.45)) * (props.numberPages - 1);
     if(props.content === ">"){
       document.getElementById(`${props._genre}-left`)!.classList.remove("hidden");
       if(parentElement!.scrollLeft >= pageLength){
@@ -230,7 +189,7 @@ function TitlesNavigation(props: {_genre: string, content: string, numberPages: 
   );
 }
 
-function Categories(props: {titles: TypeGame[] | null}){
+export function Categories(props: {titles: TypeGame[] | null, sectionName: string}){
   const [titles, setTitles] = useState<TypeGame[] | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const numPages = useRef<number>(0);
@@ -239,23 +198,28 @@ function Categories(props: {titles: TypeGame[] | null}){
     let genrePages: JSX.Element[] = [];
     if(_titles){
       let pageContents: JSX.Element[] = [];
-      let titlesGenre: TypeGame[] = [];
-      for(let i: number = 0; i < _titles.length; i++){
-        if(_titles[i]!.tags.includes(genre)) titlesGenre.push(_titles[i]);
+      let titlesGenre: TypeGame[] | null = [];
+      if(props.sectionName === ""){
+        for(let i: number = 0; i < _titles.length; i++){
+          if(_titles[i]!.tags.includes(genre)) titlesGenre!.push(_titles[i]);
+        }
       }
-
-      let numberOfPages: number = Math.floor(titlesGenre.length / 5);
-      if(titlesGenre.length % 5 !== 0) numberOfPages++;
+      else{
+        titlesGenre = props.titles;
+      }
+      
+      let numberOfPages: number = Math.floor(titlesGenre!.length / 5);
+      if(titlesGenre!.length % 5 !== 0) numberOfPages++;
       numPages.current = numberOfPages;
 
       let counter: number = 0;
       let lastIndex: number = 0;
 
-      for(let i: number = 0; i < titlesGenre.length; i++){
+      for(let i: number = 0; i < titlesGenre!.length; i++){
         pageContents.push(
-          <Link to={`/info?title=${titlesGenre[i]!.id}`} className="general-title-display" key={`genre-title-key${i}`}>
-            <img src={titlesGenre[i]!.imgURL} alt="Title" />
-          </Link> 
+          <a href={`/info?title=${titlesGenre![i]!.id}`} className="general-title-display" key={`genre-title-key${i}`}>
+            <img src={titlesGenre![i]!.imgURL} alt="Title" />
+          </a> 
         )
       }
 
@@ -264,7 +228,7 @@ function Categories(props: {titles: TypeGame[] | null}){
           <div id={`${genre}-page${i}`} className="genre-pages" key={`genre-page-key${i}`}>
             {(function(): JSX.Element[]{
               let currentTitles: JSX.Element[] = [];
-              for(let j: number = lastIndex; j < titlesGenre.length; j++){
+              for(let j: number = lastIndex; j < titlesGenre!.length; j++){
                 if(counter === 3){
                   lastIndex = j;
                   counter = 0;
@@ -283,7 +247,7 @@ function Categories(props: {titles: TypeGame[] | null}){
   }
 
   useEffect(()=>{
-    if(props.titles){
+    if(props.titles && props.sectionName === ""){
       let allGenres: string[] = [];
       for(let i: number = 0; i < props.titles.length; i++){
         props.titles[i]?.tags.forEach(genre =>{
@@ -293,6 +257,10 @@ function Categories(props: {titles: TypeGame[] | null}){
         })
       }
       setGenres(prev => prev = allGenres);
+      setTitles(prev => prev = props.titles);
+    }
+    else if(props.titles && props.sectionName !== ""){
+      setGenres(prev => prev = [props.sectionName]);
       setTitles(prev => prev = props.titles);
     }
 
@@ -368,7 +336,7 @@ function HomePage(){
         <Header item={<SearchRedirect />}/>
         <Carousel titles={carouselTitles} />
         <CarouselNavigation titles={carouselTitles} />
-        <Categories titles={allTitles} />
+        <Categories titles={allTitles} sectionName="" />
       </div>
     </main>
   );

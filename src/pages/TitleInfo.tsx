@@ -9,7 +9,7 @@ import xbox from '../images/xbox.png';
 import playstation from '../images/ps.png';
 import pc from '../images/pc.png';
 import nintentdo from '../images/switch.png';
-import {CategoryNavigation} from '../pages/Home';
+import {Categories} from '../pages/Home';
 import { getTitleInfo, getReviews, getSimilarGames, wakeUp } from '../js/admin';
 import Loader from '../general-components/PageLoader';
 import { TypeGame, TypeReview } from '../js/types';
@@ -194,61 +194,15 @@ function Videos(props : {game: TypeGame, reviews: TypeReview[] | null}){
     <section id="title-info-reviews-videos">
       {title ? 
       <div id="videos-container">
-        <iframe src={`${title.videoURL}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="videos-title" title="Trailer" allow="fullscreen"/> 
+        <iframe src={`${title.videoURL}?controls=1&enablejsapi=1&origin=https://gameastral-057014ee9b02.herokuapp.com/&autoplay=1&playlist=${title.videoURL.slice(30, title.videoURL.length)}&loop=1`} className="videos-title" title="Trailer" allow="fullscreen"/> 
         {title.gameplayVid !== "" ?
-        <iframe src={`${title.gameplayVid}?controls=1&enablejsapi=1&origin=http://localhost:3000/&autoplay=1&playlist=${title.gameplayVid.slice(30, title.gameplayVid.length)}&loop=1`} className="videos-title" title="GamePlay" allow="fullscreen"/> 
+        <iframe src={`${title.gameplayVid}?controls=1&enablejsapi=1&origin=https://gameastral-057014ee9b02.herokuapp.com/&autoplay=1&playlist=${title.gameplayVid.slice(30, title.gameplayVid.length)}&loop=1`} className="videos-title" title="GamePlay" allow="fullscreen"/> 
         : null}
       </div> 
       : <Loader />}
       <Discuss reviews={props.reviews} />
     </section>
   )
-}
-
-function SimilarTitles(props: {games: TypeGame[] | null}){
-  
-  const similarTitles = useRef<HTMLDivElement | null>(null);
-  const [titles, setTitles] = useState<TypeGame[] | null>(null);
-
-  // Check if device is touch, if so enable scroll.
-  function ifTouch(){
-    if(similarTitles.current){
-      similarTitles.current.style.overflowX = "scroll";
-    }
-  }
-
-  useEffect(()=>{
-    setTitles(prev => prev = props.games);
-
-    return()=>{
-      setTitles(prev => prev = null);
-    }
-  }, [props.games])
-
-  useEffect(()=>{
-    if(similarTitles.current){
-      if(similarTitles.current.scrollWidth > similarTitles.current.offsetWidth){
-        similarTitles.current.parentElement!.children.item(3)!.classList.remove("hidden");
-      }
-    }
-  }, [titles])
-
-  return(
-    <section id="similar-titles-container">
-      <h2 id="similar-section-title">Similar Games</h2>
-      {titles? 
-      <div id="similar-titles-wrapper" onTouchStart={ifTouch} ref={similarTitles}>
-        {titles.map(similarTitle=>
-          <a key={similarTitle!.id} className="genre-titles" title={similarTitle!.gameTitle} href={`/info?title=${similarTitle!.id}`}>
-            <img className="genre-title-image" src={similarTitle!.imgURL} alt="Title" />
-          </a>
-        )}
-      </div> 
-      : <Loader />}
-      <CategoryNavigation className={"category-navigation category-left hidden"} content={"<"} />
-      <CategoryNavigation className={"category-navigation category-right hidden"} content={">"} />
-    </section>
-  );
 }
 
 function TitleInfo(){
@@ -332,7 +286,7 @@ function TitleInfo(){
         <Header item={<SearchRedirect />}/>
         <Card game={title} />
         <Videos game={title} reviews={reviews} />
-        <SimilarTitles games={titles} />
+        <Categories titles={titles} sectionName="Similar Titles" />
       </div>
     </main>
   )

@@ -1,5 +1,5 @@
 import React, { SyntheticEvent } from 'react';
-import {useState, useRef, useEffect, useCallback} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import '../css/search-page.css';
 import '../css/general.css';
@@ -7,9 +7,6 @@ import Header from '../general-components/header';
 import { wakeUp } from '../js/admin';
 import { TypeGame, TypeFilters } from '../js/types';
 import Loader from '../general-components/PageLoader';
-
-// ITERATE THROUGH YOUR STUFF, DON'T HARD CODE!!! E.g. Tags and Platforms
-
 
 // Clear Filters Arrays
 function clearFiltersArr(){
