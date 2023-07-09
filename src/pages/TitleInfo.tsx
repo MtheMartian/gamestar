@@ -70,6 +70,7 @@ function Discuss(props: {reviews: TypeReview[] | null}){
   // Variables
   const nameValue = useRef<HTMLInputElement | null>(null);
   const saveCheckBox = useRef<HTMLInputElement | null>(null);
+  const postButton = useRef<HTMLButtonElement | null>(null);
 
   const reviewDate = useRef<string | null>(null);
 
@@ -100,6 +101,15 @@ function Discuss(props: {reviews: TypeReview[] | null}){
     }
   }
 
+  function disablePostIfEmpty(): void{
+    if(review.current!.value === "" || review.current!.value === " "){
+      postButton.current!.setAttribute("disabled", "");
+    }
+    else{
+      postButton.current!.removeAttribute("disabled");
+    }
+  }
+
   // Clear the input text for name if it was invalid
   function clearNameValue(){
     if(nameValue.current!.value === "Please enter a valid name" && nameValue.current!.style.border === "2px solid red"){
@@ -118,13 +128,14 @@ function Discuss(props: {reviews: TypeReview[] | null}){
 
   useEffect(()=>{
     setRetrievedReviews(prev => prev = props.reviews);
+    postButton.current!.setAttribute("disabled", "");
 
     return()=>{
       setRetrievedReviews(prev => prev = null);
     }
   }, [props.reviews])
 
-  async function postReview(e:React.MouseEvent){
+  async function postReview(e:React.MouseEvent<HTMLButtonElement>){
     e.preventDefault();
     const response = await fetch(`${process.env.REACT_APP_SERVE_ME}/api/reviews/postreview/${gameId}`,{
       method: "post",
@@ -163,7 +174,7 @@ function Discuss(props: {reviews: TypeReview[] | null}){
         </div>
         <form id="discuss-post-message">
           <textarea form="discuss-post-message" placeholder="Post Comment, Review..." id="discuss-message"
-            ref={review} />
+            ref={review} onChange={disablePostIfEmpty}/>
           <div id="name-section">
             <input type="text" placeholder="Display Name" id="discuss-name" ref={nameValue}
               defaultValue={_name}  onClick={clearNameValue} />
@@ -172,7 +183,7 @@ function Discuss(props: {reviews: TypeReview[] | null}){
               <input type="checkbox" id="discuss-save-name" onChange={saveName} ref={saveCheckBox}/>
             </label>
           </div>
-          <button id="discuss-submit" onClick={postReview}>Post</button>
+          <button id="discuss-submit" onClick={postReview} ref={postButton}>Post</button>
         </form>
       </section>
     </section>

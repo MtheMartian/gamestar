@@ -16,6 +16,17 @@ body{
   background: rgba(13, 0, 34, 0.95);
 }
 
+*:disabled{
+  background: dimgray !important;
+  opacity: 1 !important;
+  color: rgba(240, 248, 255, 0.521) !important;
+  cursor: default !important;
+}
+
+*:disabled:active{
+  transform: none !important;
+}
+
 /* ------- Header ------- */
 #main-header{
   background: linear-gradient( rgba(13, 0, 34, 0.35) 10%, rgba(13, 0, 34, 0.35) 10%, rgba(13, 0, 34, 0.35)33%, rgb(0, 0, 0) 100%),
