@@ -182,11 +182,14 @@ function TitlesNavigation(props: {_genre: string, content: string, numberPages: 
     const element2: HTMLElement | null = document.getElementById(`${props._genre}-right`);
     const parentElement: HTMLElement | null = document.getElementById(props.currentElement);
     const page: HTMLElement | null = document.querySelector(".genre-pages");
+    const pageLength: number = (page!.clientWidth - (page!.clientWidth * 0.4)) * (props.numberPages - 1);
     if(props.content === ">"){
       document.getElementById(`${props._genre}-left`)!.classList.remove("hidden");
-      if(parentElement!.scrollLeft >= page!.clientWidth * (props.numberPages - 1)){
+      if(parentElement!.scrollLeft >= pageLength){
         e.currentTarget.classList.add("hidden");
       }
+      console.log(parentElement!.scrollLeft);
+      console.log(pageLength);
     }
     else if(props.content === "<"){
       document.getElementById(`${props._genre}-right`)!.classList.remove("hidden");
@@ -198,8 +201,10 @@ function TitlesNavigation(props: {_genre: string, content: string, numberPages: 
 
   function changePage(e: React.MouseEvent<HTMLButtonElement>): void{
     if(props.content === ">"){
+      console.log(`Before:${document.getElementById(props.currentElement)!.scrollLeft}`);
       document.getElementById(props.currentElement)!.scrollLeft +=
       document.querySelector(".genre-pages")!.clientWidth;
+      console.log(`Page:${document.querySelector(".genre-pages")!.clientWidth}`);
       hideButton(e);
     }
     else if(props.content === "<"){
