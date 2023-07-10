@@ -5,10 +5,6 @@ import Header from '../general-components/header';
 import '../css/general.css';
 import '../css/title-info.css';
 import '../css/homepage.css';
-import xbox from '../images/xbox.png';
-import playstation from '../images/ps.png';
-import pc from '../images/pc.png';
-import nintentdo from '../images/switch.png';
 import {Categories} from '../pages/Home';
 import { getTitleInfo, getReviews, getSimilarGames, wakeUp } from '../js/admin';
 import Loader from '../general-components/PageLoader';
@@ -45,13 +41,13 @@ function Card(props: {game: TypeGame}){
         <img src={title.imgURL} className="card-title-image" alt="Title" />
         <div id="card-title-platforms">
           {title.platforms.includes("XSX") || title.platforms.includes("XSS") ? 
-            <a href={title.consoleLinks["xbox"]}><img src={xbox} alt="Xbox"/></a> : null}
+            <a href={title.consoleLinks["xbox"]}><img src="/main/images/xbox.png" alt="Xbox"/></a> : null}
           {title.platforms.includes("PS4") || title.platforms.includes("PS5") ? 
-            <a href={title.consoleLinks["pStore"]}><img src={playstation} alt="PS"/></a> : null}
+            <a href={title.consoleLinks["pStore"]}><img src="/main/images/ps.png" alt="PS"/></a> : null}
           {title.platforms.includes("PC") ? 
-            <a href={title.pcLinks["steam"] !== "" ? title.pcLinks["steam"] : title.pcLinks["epicStore"]}><img src={pc} alt="PC"/></a> : null}
+            <a href={title.pcLinks["steam"] !== "" ? title.pcLinks["steam"] : title.pcLinks["epicStore"]}><img src="/main/images/pc.png" alt="PC"/></a> : null}
           {title.platforms.includes("Switch") ? 
-            <a href={title.consoleLinks["nintendo"]}><img src={nintentdo} alt="Switch"/></a> : null}
+            <a href={title.consoleLinks["nintendo"]}><img src="/main/images/switch.png" alt="Switch"/></a> : null}
         </div>
         <div id="card-title-summary-wrapper">
           <p id="card-title-summary">{title.summary}</p>
@@ -156,6 +152,7 @@ function Discuss(props: {reviews: TypeReview[] | null}){
       review.current!.style.border = "3px solid red";
       review.current!.style.boxShadow = "none";
     }
+    disablePostIfEmpty();
   }
 
   return(

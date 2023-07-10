@@ -147,8 +147,6 @@ export function TitlesNavigation(props: {_genre: string, content: string, number
       if(parentElement!.scrollLeft >= pageLength){
         e.currentTarget.classList.add("hidden");
       }
-      console.log(parentElement!.scrollLeft);
-      console.log(pageLength);
     }
     else if(props.content === "<"){
       document.getElementById(`${props._genre}-right`)!.classList.remove("hidden");
@@ -160,10 +158,8 @@ export function TitlesNavigation(props: {_genre: string, content: string, number
 
   function changePage(e: React.MouseEvent<HTMLButtonElement>): void{
     if(props.content === ">"){
-      console.log(`Before:${document.getElementById(props.currentElement)!.scrollLeft}`);
       document.getElementById(props.currentElement)!.scrollLeft +=
       document.querySelector(".genre-pages")!.clientWidth;
-      console.log(`Page:${document.querySelector(".genre-pages")!.clientWidth}`);
       hideButton(e);
     }
     else if(props.content === "<"){
