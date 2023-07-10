@@ -199,6 +199,10 @@ function Tags({appendTitles, titles}: FilterProps){
       }
     }
     setRetrievedTags();
+
+    return()=>{
+      setTags(prev => prev = []);
+    }
   }, [titles]);
  
   return(
@@ -281,8 +285,11 @@ useEffect(()=>{
       setTimeout(setRetrievedPlatforms, 1000);
     }  
   }
-
   setRetrievedPlatforms();
+
+  return()=>{
+    setPlatforms(prev => prev = []);
+  }
 }, [titles]);
 
   return(
@@ -362,8 +369,11 @@ useEffect(()=>{
       setTimeout(setRetrievedReleaseDates, 1000);
     }  
   }
-
   setRetrievedReleaseDates();
+
+  return()=>{
+    setYear(prev => prev = []);
+  }
 }, [titles]);
 
   return(
@@ -469,6 +479,10 @@ function Publishers({appendTitles, titles}: FilterProps){
     }
 
     setRetrievedPublishers();
+
+    return()=>{
+      setPublishers(prev => prev = []);
+    }
   },[titles]);
 
   return(
@@ -569,6 +583,14 @@ function App(){
   }
   setSearchedTitles(prev => prev = titles); // *Change page state (Titles)* 
 } 
+
+// Clear filters and titles
+useEffect(()=>{
+  Object.keys(filterArrays).forEach(key =>{
+    filterArrays[key] = [];
+  });
+  titlesArr = [];
+}, [])
  
 useEffect(()=>{
   async function checkServer(){
