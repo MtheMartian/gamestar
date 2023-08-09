@@ -4,6 +4,9 @@
 * ReactJS used for the frontend.
 * C# (ASP.Net Core) for the backend in combination with MongoDB and Cloudinary (media storage service).
 
+### Backend code
+<a href="https://github.com/MtheMartian/gameastral-admin">Backend</a>
+
 ### Description
 * View recently released titles.
   ![gamain](https://github.com/MtheMartian/gamestar/assets/105645430/a2743152-beb0-48f7-ada1-80b21965a08b)
