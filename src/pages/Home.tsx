@@ -137,36 +137,49 @@ function Carousel(props: {titles: TypeGame[] | null}){
   );
 }
 
-export function TitlesNavigation(props: {_genre: string, content: string, numberPages: number, currentElement: string}){
+export function TitlesNavigation(props: {_genre: string, numberPages: number, currentElement: string}){
+  const numOfPages = useRef<number>(0);
+
   function hideButton(e: React.MouseEvent<HTMLButtonElement>){
     const parentElement: HTMLElement | null = document.getElementById(props.currentElement);
     const page: HTMLElement | null = document.querySelector(".genre-pages");
     const pageLength: number = (page!.clientWidth - (page!.clientWidth * 0.45)) * (props.numberPages - 1);
-    if(props.content === ">"){
+    
+    if(e.currentTarget.innerText == ">"){
       document.getElementById(`${props._genre}-left`)!.classList.remove("hidden");
-      if(parentElement!.scrollLeft >= pageLength){
+      if(numOfPages.current === props.numberPages - 1){
         e.currentTarget.classList.add("hidden");
       }
     }
-    else if(props.content === "<"){
+    else if(e.currentTarget.innerText == "<"){
       document.getElementById(`${props._genre}-right`)!.classList.remove("hidden");
-      if(parentElement!.scrollLeft <= 0){
+      if(numOfPages.current === 0){
         e.currentTarget.classList.add("hidden");
       }
     } 
   }
 
   function changePage(e: React.MouseEvent<HTMLButtonElement>): void{
-    if(props.content === ">"){
-      document.getElementById(props.currentElement)!.scrollLeft +=
-      document.querySelector(".genre-pages")!.clientWidth;
+    if(e.currentTarget.innerText == ">"){
+      numOfPages.current = numOfPages.current++ > props.numberPages - 1 ? props.numberPages - 1 : numOfPages.current++;
+      const myElement = document.getElementById(`${props._genre}-page${numOfPages.current}`);
+      myElement!.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      })
       hideButton(e);
     }
-    else if(props.content === "<"){
-      document.getElementById(props.currentElement)!.scrollLeft -=
-      document.querySelector(".genre-pages")!.clientWidth;
+    else if(e.currentTarget.innerText == "<"){
+      numOfPages.current = numOfPages.current-- < 0 ? 0 : numOfPages.current--;
+      const myElement = document.getElementById(`${props._genre}-page${numOfPages.current}`);
+      myElement!.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      })
       hideButton(e);
     }
+
+    console.log(numOfPages.current);
   }
 
   useEffect(()=>{
@@ -178,10 +191,16 @@ export function TitlesNavigation(props: {_genre: string, content: string, number
   }, [])
 
   return(
-    <button className={props.content === ">" ? "titles-navigation right-button" : "titles-navigation left-button"} 
-            onClick={changePage} id={props.content === ">" ? `${props._genre}-right` : `${props._genre}-left`}>
-      {props.content}
+    <div className="title-navigation-wrapper">
+      <button className="titles-navigation left-button" 
+            onClick={changePage} id={`${props._genre}-left`}>
+      {"<"}
     </button>
+    <button className="titles-navigation right-button" 
+            onClick={changePage} id={`${props._genre}-right`}>
+      {">"}
+    </button>
+    </div>
   );
 }
 
@@ -276,9 +295,7 @@ export function Categories(props: {titles: TypeGame[] | null, sectionName: strin
             <div className="home-page-category-titles-wrapper" id={`${genre}-titles-wrapper${index}`}>
               {returnPages(genre, titles)}
               <TitlesNavigation currentElement={`${genre}-titles-wrapper${index}`} _genre={genre}
-                numberPages={numPages.current} content="<" />
-              <TitlesNavigation currentElement={`${genre}-titles-wrapper${index}`} _genre={genre}
-                numberPages={numPages.current} content=">" />
+                numberPages={numPages.current} />
             </div> 
           </div>
         )}

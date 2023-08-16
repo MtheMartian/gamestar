@@ -6,7 +6,6 @@
 
  // Variables
 
-
  // Routes
  export async function getTitles(){
   try{
