@@ -132,7 +132,7 @@ function Carousel(props: {titles: TypeGame[] | null}){
             </Link>
           </div>
         )}
-      </div>: <Loader />}
+      </div>: <div style={{minHeight: "30em"}}><Loader /></div>}
     </section>
   );
 }
@@ -299,7 +299,7 @@ export function Categories(props: {titles: TypeGame[] | null, sectionName: strin
             </div> 
           </div>
         )}
-      </div> : <Loader />}
+      </div> : <div style={{minHeight: "30em"}}><Loader /></div>}
     </section>
   );
 }
