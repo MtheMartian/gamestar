@@ -74,8 +74,9 @@ function SearchBar({appendTitles}: SearchbarProps){
         break;
       }
     }
-    url = window.location.href.slice(index, window.location.href.length);
-    entryFromUrl = window.location.href.slice(index, window.location.href.length);
+    const decodedStr = decodeURI(window.location.href.slice(index, window.location.href.length));
+    url = decodedStr;
+    entryFromUrl = decodedStr;
   }
 
   // Set user inputs into the search bar and url (useful for history)
